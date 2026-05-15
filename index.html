@@ -243,6 +243,15 @@
         animation-delay: 0.55s;
       }
 
+      .count.count-hms {
+        font-size: clamp(72px, 11vw, 160px);
+        gap: 0.18em;
+        flex-wrap: wrap;
+      }
+      .count.count-hms .unit {
+        margin-right: 0.18em;
+      }
+
       .connector {
         font-family: "Fraunces", serif;
         font-style: italic;
@@ -449,8 +458,10 @@
             <span id="count">—</span><span class="unit">days</span>
           </div>
           <div class="connector">which is</div>
-          <div class="count" aria-live="polite">
-            <span id="countHours">—</span><span class="unit">hours</span>
+          <div class="count count-hms" aria-live="polite">
+            <span id="countHours">—</span><span class="unit">h</span>
+            <span id="countMins">—</span><span class="unit">m</span>
+            <span id="countSecs">—</span><span class="unit">s</span>
           </div>
         </div>
 
@@ -550,12 +561,50 @@
       // -----------------------------------------------------------
       const countEl = document.getElementById("count");
       const countHoursEl = document.getElementById("countHours");
+      const countMinsEl = document.getElementById("countMins");
+      const countSecsEl = document.getElementById("countSecs");
       const fillEl = document.getElementById("fill");
       const elapsedEl = document.getElementById("elapsed");
       const totalEl = document.getElementById("total");
 
-      const HOURS_PER_DAY = 8;
-      const remainingHours = remaining * HOURS_PER_DAY;
+      const WORK_START_HOUR = 9;
+      const WORK_END_HOUR = 17;
+      const LEAVE_END = new Date(LEAVE);
+      LEAVE_END.setHours(WORK_END_HOUR, 0, 0, 0);
+
+      function workingSecondsRemaining(now) {
+        if (now >= LEAVE_END) return 0;
+        let total = 0;
+        const cursor = new Date(now);
+        while (cursor < LEAVE_END) {
+          const dow = cursor.getDay();
+          if (dow !== 0 && dow !== 6) {
+            const dayStart = new Date(cursor);
+            dayStart.setHours(WORK_START_HOUR, 0, 0, 0);
+            const dayEnd = new Date(cursor);
+            dayEnd.setHours(WORK_END_HOUR, 0, 0, 0);
+            const from = cursor > dayStart ? cursor : dayStart;
+            const to = LEAVE_END < dayEnd ? LEAVE_END : dayEnd;
+            if (to > from) total += (to - from) / 1000;
+          }
+          // jump to next local midnight
+          cursor.setHours(24, 0, 0, 0);
+        }
+        return Math.floor(total);
+      }
+
+      function tickHours() {
+        const secs = workingSecondsRemaining(new Date());
+        const h = Math.floor(secs / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = secs % 60;
+        countHoursEl.textContent = h.toLocaleString("en-GB");
+        countMinsEl.textContent = String(m).padStart(2, "0");
+        countSecsEl.textContent = String(s).padStart(2, "0");
+      }
+      tickHours();
+      setInterval(tickHours, 1000);
+
       document.getElementById("calDays").textContent = calDays;
       document.getElementById("weekends").textContent = weekends;
       document.getElementById("weeks").textContent =
@@ -611,10 +660,6 @@
       }
       const fmtNum = (v) => v.toLocaleString("en-GB");
       setTimeout(() => animateCount(countEl, remaining, 1600, fmtNum), 350);
-      setTimeout(
-        () => animateCount(countHoursEl, remainingHours, 1800, fmtNum),
-        500
-      );
 
       // Pointer sheen on count
       const wrap = document.getElementById("countWrap");
