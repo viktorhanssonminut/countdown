@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Working days left at Minut</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-0: #07080d;
+        --bg-1: #0c0f17;
+        --ink: #e9ecf3;
+        --ink-dim: rgba(233, 236, 243, 0.55);
+        --ink-faint: rgba(233, 236, 243, 0.28);
+        --accent: #ff7a4d;
+        --accent-2: #ffd6a8;
+        --accent-3: #6cc6ff;
+        --line: rgba(233, 236, 243, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background: var(--bg-0);
+        color: var(--ink);
+        overflow: hidden;
+        position: relative;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Background: layered radial gradients + slow noise */
+      .bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background:
+          radial-gradient(
+            900px 700px at 18% 22%,
+            rgba(255, 122, 77, 0.18),
+            transparent 60%
+          ),
+          radial-gradient(
+            1000px 800px at 82% 78%,
+            rgba(108, 198, 255, 0.14),
+            transparent 60%
+          ),
+          radial-gradient(
+            700px 600px at 50% 50%,
+            rgba(255, 214, 168, 0.06),
+            transparent 70%
+          ),
+          linear-gradient(180deg, var(--bg-0), var(--bg-1));
+        filter: saturate(1.05);
+      }
+
+      .grain {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0.4;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      }
+
+      /* Floating soft orbs */
+      .orb {
+        position: fixed;
+        border-radius: 999px;
+        filter: blur(60px);
+        opacity: 0.55;
+        z-index: 1;
+        animation: drift 22s ease-in-out infinite;
+      }
+      .orb.a {
+        width: 420px;
+        height: 420px;
+        left: -120px;
+        top: -100px;
+        background: radial-gradient(circle, #ff7a4d, transparent 65%);
+      }
+      .orb.b {
+        width: 520px;
+        height: 520px;
+        right: -160px;
+        bottom: -160px;
+        background: radial-gradient(circle, #6cc6ff, transparent 65%);
+        animation-delay: -8s;
+        animation-duration: 28s;
+      }
+      .orb.c {
+        width: 300px;
+        height: 300px;
+        left: 55%;
+        top: 60%;
+        background: radial-gradient(circle, #ffd6a8, transparent 65%);
+        animation-delay: -14s;
+        animation-duration: 32s;
+        opacity: 0.35;
+      }
+
+      @keyframes drift {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        25% {
+          transform: translate(40px, -30px) scale(1.05);
+        }
+        50% {
+          transform: translate(-30px, 25px) scale(0.98);
+        }
+        75% {
+          transform: translate(20px, 40px) scale(1.03);
+        }
+      }
+
+      canvas#particles {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      /* Layout */
+      .frame {
+        position: relative;
+        z-index: 3;
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        padding: 28px 36px;
+      }
+
+      header,
+      footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--ink-dim);
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      .brand .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 14px var(--accent);
+        animation: pulse 2.4s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.55;
+          transform: scale(0.9);
+        }
+      }
+
+      main {
+        display: grid;
+        place-items: center;
+        text-align: center;
+        gap: 28px;
+      }
+
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: var(--ink-dim);
+        opacity: 0;
+        transform: translateY(8px);
+        animation: rise 1s 0.1s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .count-wrap {
+        position: relative;
+        display: grid;
+        gap: 4px;
+        place-items: center;
+        padding: 8px 28px;
+      }
+
+      .count {
+        font-family: "Fraunces", "Times New Roman", serif;
+        font-weight: 400;
+        font-size: clamp(96px, 14vw, 200px);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+        background: linear-gradient(
+          180deg,
+          #fff 0%,
+          #ffd6a8 55%,
+          #ff7a4d 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 80px rgba(255, 122, 77, 0.18);
+        font-variant-numeric: tabular-nums;
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+        animation: rise-big 1.2s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 0.28em;
+      }
+
+      .count + .count {
+        animation-delay: 0.45s;
+      }
+
+      .count .unit {
+        font-family: "Fraunces", serif;
+        font-style: italic;
+        font-weight: 300;
+        font-size: 0.28em;
+        letter-spacing: 0.04em;
+        color: var(--ink-dim);
+        -webkit-text-fill-color: var(--ink-dim);
+        background: none;
+        text-shadow: none;
+      }
+
+      .count .digit {
+        display: inline-block;
+        will-change: transform;
+      }
+
+      .label {
+        font-family: "Fraunces", serif;
+        font-weight: 300;
+        font-style: italic;
+        font-size: clamp(20px, 2.4vw, 28px);
+        color: var(--ink);
+        opacity: 0;
+        transform: translateY(8px);
+        animation: rise 1s 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .label b {
+        font-style: normal;
+        font-weight: 500;
+        color: var(--accent-2);
+      }
+
+      /* Progress bar */
+      .progress {
+        width: min(560px, 80vw);
+        display: grid;
+        gap: 10px;
+        opacity: 0;
+        transform: translateY(8px);
+        animation: rise 1s 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .progress .track {
+        position: relative;
+        height: 2px;
+        background: var(--line);
+        overflow: hidden;
+        border-radius: 2px;
+      }
+
+      .progress .fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 0%;
+        background: linear-gradient(
+          90deg,
+          var(--accent),
+          var(--accent-2),
+          var(--accent-3)
+        );
+        border-radius: 2px;
+        box-shadow: 0 0 18px rgba(255, 122, 77, 0.5);
+        animation: fill 1.6s 1s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .progress .meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
+
+      .progress .meta b {
+        color: var(--ink-dim);
+        font-weight: 500;
+      }
+
+      /* Stats row */
+      .stats {
+        display: flex;
+        gap: clamp(24px, 5vw, 64px);
+        margin-top: 6px;
+        opacity: 0;
+        transform: translateY(8px);
+        animation: rise 1s 0.95s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .stat {
+        text-align: center;
+      }
+      .stat .v {
+        font-family: "Fraunces", serif;
+        font-size: clamp(28px, 3vw, 36px);
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+      .stat .k {
+        font-size: 10px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        margin-top: 4px;
+      }
+
+      footer .right {
+        font-feature-settings: "tnum";
+      }
+
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes rise-big {
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes fill {
+        to {
+          width: var(--p, 0%);
+        }
+      }
+
+      /* Subtle hover/sheen on count */
+      .count-wrap::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          200px 100px at var(--mx, 50%) var(--my, 50%),
+          rgba(255, 255, 255, 0.08),
+          transparent 70%
+        );
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      .count-wrap:hover::after {
+        opacity: 1;
+      }
+
+      @media (max-width: 640px) {
+        .frame {
+          padding: 20px 22px;
+        }
+        header,
+        footer {
+          font-size: 10px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg"></div>
+    <div class="orb a"></div>
+    <div class="orb b"></div>
+    <div class="orb c"></div>
+    <canvas id="particles"></canvas>
+    <div class="grain"></div>
+
+    <div class="frame">
+      <header>
+        <div class="brand">
+          <span class="dot"></span>
+          <span>Minut · Farewell countdown</span>
+        </div>
+        <div id="today"></div>
+      </header>
+
+      <main>
+        <div class="eyebrow">Working days remaining</div>
+
+        <div class="count-wrap" id="countWrap">
+          <div class="count" aria-live="polite">
+            <span id="count">—</span><span class="unit">days</span>
+          </div>
+          <div class="count" aria-live="polite">
+            <span id="countHours">—</span><span class="unit">hours</span>
+          </div>
+        </div>
+
+        <div class="label">
+          until <b id="leaveDate">22 July 2026</b>
+        </div>
+
+        <div class="progress" aria-hidden="true">
+          <div class="track"><div class="fill" id="fill"></div></div>
+          <div class="meta">
+            <span><b id="elapsed">0</b> elapsed</span>
+            <span><b id="total">0</b> total</span>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="v" id="weeks">—</div>
+            <div class="k">weeks-ish</div>
+          </div>
+          <div class="stat">
+            <div class="v" id="calDays">—</div>
+            <div class="k">calendar days</div>
+          </div>
+          <div class="stat">
+            <div class="v" id="weekends">—</div>
+            <div class="k">weekends</div>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <div>So long, and thanks for all the sensors</div>
+        <div class="right" id="clock"></div>
+      </footer>
+    </div>
+
+    <script>
+      // -----------------------------------------------------------
+      // Working-day math
+      // -----------------------------------------------------------
+      const LEAVE = new Date(2026, 6, 22); // July is month 6 (0-indexed)
+      LEAVE.setHours(0, 0, 0, 0);
+
+      function startOfDay(d) {
+        const x = new Date(d);
+        x.setHours(0, 0, 0, 0);
+        return x;
+      }
+
+      function workingDaysBetween(from, to) {
+        // inclusive of both ends, counts Mon-Fri
+        let count = 0;
+        const cur = startOfDay(from);
+        const end = startOfDay(to);
+        while (cur <= end) {
+          const d = cur.getDay();
+          if (d !== 0 && d !== 6) count++;
+          cur.setDate(cur.getDate() + 1);
+        }
+        return count;
+      }
+
+      function calendarDaysBetween(from, to) {
+        const ms = startOfDay(to) - startOfDay(from);
+        return Math.max(0, Math.round(ms / 86400000)) + 1;
+      }
+
+      function weekendsBetween(from, to) {
+        let saturdays = 0;
+        const cur = startOfDay(from);
+        const end = startOfDay(to);
+        while (cur <= end) {
+          if (cur.getDay() === 6) saturdays++;
+          cur.setDate(cur.getDate() + 1);
+        }
+        return saturdays;
+      }
+
+      const today = startOfDay(new Date());
+
+      // If today is already past LEAVE, clamp to zero
+      const remaining = today > LEAVE ? 0 : workingDaysBetween(today, LEAVE);
+      const calDays = today > LEAVE ? 0 : calendarDaysBetween(today, LEAVE);
+      const weekends = today > LEAVE ? 0 : weekendsBetween(today, LEAVE);
+
+      // Notice handed in 2026-05-13 — progress runs from there to LEAVE.
+      const noticeStart = new Date(2026, 4, 13);
+      const totalWorking = workingDaysBetween(noticeStart, LEAVE);
+      const elapsed = Math.max(0, totalWorking - remaining);
+      const pct = totalWorking
+        ? Math.min(100, Math.round((elapsed / totalWorking) * 100))
+        : 0;
+
+      // -----------------------------------------------------------
+      // Render
+      // -----------------------------------------------------------
+      const countEl = document.getElementById("count");
+      const countHoursEl = document.getElementById("countHours");
+      const fillEl = document.getElementById("fill");
+      const elapsedEl = document.getElementById("elapsed");
+      const totalEl = document.getElementById("total");
+
+      const HOURS_PER_DAY = 8;
+      const remainingHours = remaining * HOURS_PER_DAY;
+      document.getElementById("calDays").textContent = calDays;
+      document.getElementById("weekends").textContent = weekends;
+      document.getElementById("weeks").textContent =
+        (remaining / 5).toFixed(1);
+
+      elapsedEl.textContent = elapsed;
+      totalEl.textContent = totalWorking;
+      fillEl.style.setProperty("--p", pct + "%");
+
+      const fmtDate = (d) =>
+        d.toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      document.getElementById("today").textContent = fmtDate(today);
+      document.getElementById("leaveDate").textContent = LEAVE.toLocaleDateString(
+        "en-GB",
+        { day: "numeric", month: "long", year: "numeric" }
+      );
+
+      // Live clock in footer
+      function tick() {
+        const n = new Date();
+        document.getElementById("clock").textContent =
+          n.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          }) + " local";
+      }
+      tick();
+      setInterval(tick, 1000);
+
+      // -----------------------------------------------------------
+      // Animated count-up
+      // -----------------------------------------------------------
+      function easeOutQuint(t) {
+        return 1 - Math.pow(1 - t, 5);
+      }
+
+      function animateCount(el, to, duration = 1600, format = (v) => v) {
+        const start = performance.now();
+        function frame(now) {
+          const t = Math.min(1, (now - start) / duration);
+          const v = Math.round(to * easeOutQuint(t));
+          el.textContent = format(v);
+          if (t < 1) requestAnimationFrame(frame);
+          else el.textContent = format(to);
+        }
+        requestAnimationFrame(frame);
+      }
+      const fmtNum = (v) => v.toLocaleString("en-GB");
+      setTimeout(() => animateCount(countEl, remaining, 1600, fmtNum), 350);
+      setTimeout(
+        () => animateCount(countHoursEl, remainingHours, 1800, fmtNum),
+        500
+      );
+
+      // Pointer sheen on count
+      const wrap = document.getElementById("countWrap");
+      wrap.addEventListener("pointermove", (e) => {
+        const r = wrap.getBoundingClientRect();
+        wrap.style.setProperty("--mx", ((e.clientX - r.left) / r.width) * 100 + "%");
+        wrap.style.setProperty("--my", ((e.clientY - r.top) / r.height) * 100 + "%");
+      });
+
+      // -----------------------------------------------------------
+      // Drifting particle field
+      // -----------------------------------------------------------
+      const canvas = document.getElementById("particles");
+      const ctx = canvas.getContext("2d");
+      let W, H, DPR;
+      function resize() {
+        DPR = Math.min(2, window.devicePixelRatio || 1);
+        W = canvas.width = window.innerWidth * DPR;
+        H = canvas.height = window.innerHeight * DPR;
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+      }
+      resize();
+      window.addEventListener("resize", resize);
+
+      const N = 70;
+      const dots = Array.from({ length: N }, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: (Math.random() * 1.6 + 0.3) * DPR,
+        vx: (Math.random() - 0.5) * 0.12 * DPR,
+        vy: (Math.random() - 0.5) * 0.12 * DPR,
+        a: Math.random() * 0.6 + 0.15,
+        hue: Math.random() < 0.5 ? "255, 214, 168" : "108, 198, 255",
+      }));
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        // soft connecting lines for nearby dots
+        for (let i = 0; i < N; i++) {
+          const p = dots[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < -10) p.x = W + 10;
+          if (p.x > W + 10) p.x = -10;
+          if (p.y < -10) p.y = H + 10;
+          if (p.y > H + 10) p.y = -10;
+
+          for (let j = i + 1; j < N; j++) {
+            const q = dots[j];
+            const dx = p.x - q.x;
+            const dy = p.y - q.y;
+            const d2 = dx * dx + dy * dy;
+            const max = 140 * DPR;
+            if (d2 < max * max) {
+              const a = 1 - Math.sqrt(d2) / max;
+              ctx.strokeStyle = `rgba(233, 236, 243, ${a * 0.08})`;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(q.x, q.y);
+              ctx.stroke();
+            }
+          }
+
+          ctx.fillStyle = `rgba(${p.hue}, ${p.a})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+    </script>
+  </body>
+</html>
