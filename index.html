@@ -239,8 +239,20 @@
         gap: 0.28em;
       }
 
-      .count + .count {
-        animation-delay: 0.45s;
+      .count + .connector + .count {
+        animation-delay: 0.55s;
+      }
+
+      .connector {
+        font-family: "Fraunces", serif;
+        font-style: italic;
+        font-weight: 300;
+        font-size: clamp(18px, 2vw, 24px);
+        color: var(--ink-dim);
+        letter-spacing: 0.02em;
+        opacity: 0;
+        transform: translateY(8px);
+        animation: rise 1s 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
       }
 
       .count .unit {
@@ -436,6 +448,7 @@
           <div class="count" aria-live="polite">
             <span id="count">—</span><span class="unit">days</span>
           </div>
+          <div class="connector">which is</div>
           <div class="count" aria-live="polite">
             <span id="countHours">—</span><span class="unit">hours</span>
           </div>
