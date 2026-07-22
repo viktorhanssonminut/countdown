@@ -322,6 +322,83 @@
         margin-top: 6px;
       }
 
+      /* Celebration overlay */
+      canvas#celebrate {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      canvas#celebrate.on { opacity: 1; }
+
+      .stamp {
+        position: fixed;
+        z-index: 25;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-8deg) scale(3.5);
+        opacity: 0;
+        pointer-events: none;
+        color: var(--brick);
+        border: 6px solid currentColor;
+        padding: clamp(14px, 2vh, 22px) clamp(26px, 5vw, 56px)
+          clamp(18px, 2.5vh, 28px);
+        text-align: center;
+        background: rgba(242, 235, 220, 0.88);
+        box-shadow:
+          inset 0 0 0 3px var(--paper),
+          inset 0 0 0 6px currentColor;
+        filter: drop-shadow(0 12px 32px rgba(26, 22, 17, 0.18));
+      }
+      .stamp.on {
+        animation: stamp-slam 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+      @keyframes stamp-slam {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(-25deg) scale(3.5);
+        }
+        60% {
+          opacity: 1;
+          transform: translate(-50%, -50%) rotate(-7deg) scale(0.95);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%) rotate(-8deg) scale(1);
+        }
+      }
+      .stamp .stamp-main {
+        display: block;
+        font-family: "Instrument Serif", serif;
+        font-weight: 400;
+        font-size: clamp(64px, 12vw, 180px);
+        line-height: 0.9;
+        letter-spacing: 0.05em;
+      }
+      .stamp .stamp-top,
+      .stamp .stamp-bot {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: clamp(11px, 1vw, 14px);
+        letter-spacing: 0.3em;
+        opacity: 0.85;
+      }
+      .stamp .stamp-top { margin-bottom: 6px; }
+      .stamp .stamp-bot { margin-top: 6px; }
+
+      body.shake .frame {
+        animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) 0.32s;
+      }
+      @keyframes shake {
+        0%, 100% { transform: translate(0, 0); }
+        20% { transform: translate(-8px, 5px); }
+        40% { transform: translate(6px, -4px); }
+        60% { transform: translate(-4px, 3px); }
+        80% { transform: translate(3px, -2px); }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
           animation-duration: 0.001ms !important;
@@ -410,6 +487,13 @@
       </div>
     </div>
 
+    <canvas id="celebrate"></canvas>
+    <div class="stamp" id="stamp" aria-hidden="true">
+      <span class="stamp-top">v1.0 · release</span>
+      <span class="stamp-main">SHIPPED</span>
+      <span class="stamp-bot">21 · aug · 2026</span>
+    </div>
+
     <script>
       const LEAVE = new Date(2026, 7, 21, 17, 0, 0, 0); // Aug 21, 2026 · 17:00
       const JOINED = new Date(2020, 3, 6); // Apr 6, 2020
@@ -426,6 +510,7 @@
 
       const pad = (n, len) => String(n).padStart(len, "0");
 
+      let celebrated = false;
       function tick() {
         const now = new Date();
         const diff = Math.max(0, LEAVE - now);
@@ -438,6 +523,10 @@
         vHours.textContent = pad(h, 2);
         vMins.textContent = pad(m, 2);
         vSecs.textContent = pad(s, 2);
+        if (totalSecs === 0 && !celebrated) {
+          celebrated = true;
+          setTimeout(startCelebration, 0);
+        }
       }
       tick();
       setInterval(tick, 1000);
@@ -468,6 +557,106 @@
         month: "long",
         year: "numeric",
       });
+
+      // ---------------------------------------------------------------
+      // Celebration: SHIPPED stamp + paper-confetti shower
+      // ---------------------------------------------------------------
+      const cCanvas = document.getElementById("celebrate");
+      const cCtx = cCanvas.getContext("2d");
+      const stampEl = document.getElementById("stamp");
+      let CW, CH, CDPR;
+      function cResize() {
+        CDPR = Math.min(2, window.devicePixelRatio || 1);
+        CW = cCanvas.width = window.innerWidth * CDPR;
+        CH = cCanvas.height = window.innerHeight * CDPR;
+        cCanvas.style.width = window.innerWidth + "px";
+        cCanvas.style.height = window.innerHeight + "px";
+      }
+      cResize();
+      window.addEventListener("resize", cResize);
+
+      const CONFETTI_COLORS = [
+        "#c14a2b", // brick
+        "#d4a54a", // mustard
+        "#4c6b3f", // moss
+        "#7ba7c9", // sky
+        "#f6e8a8", // highlight
+        "#1a1611", // ink
+      ];
+      const confetti = [];
+
+      function spawnConfetti(n, opts = {}) {
+        const fromTop = opts.fromTop !== false;
+        for (let i = 0; i < n; i++) {
+          confetti.push({
+            x: Math.random() * CW,
+            y: fromTop ? -20 * CDPR - Math.random() * 60 * CDPR
+                       : CH * (0.2 + Math.random() * 0.3),
+            w: (5 + Math.random() * 8) * CDPR,
+            h: (9 + Math.random() * 14) * CDPR,
+            vx: (Math.random() - 0.5) * 2.4 * CDPR,
+            vy: (1.2 + Math.random() * 2.2) * CDPR,
+            rot: Math.random() * Math.PI * 2,
+            vrot: (Math.random() - 0.5) * 0.24,
+            color:
+              CONFETTI_COLORS[
+                Math.floor(Math.random() * CONFETTI_COLORS.length)
+              ],
+            wobble: Math.random() * Math.PI * 2,
+            wobbleSpeed: 0.04 + Math.random() * 0.05,
+          });
+        }
+      }
+
+      let cRunning = false;
+      function cDraw() {
+        cCtx.clearRect(0, 0, CW, CH);
+        for (let i = confetti.length - 1; i >= 0; i--) {
+          const p = confetti[i];
+          p.wobble += p.wobbleSpeed;
+          p.x += p.vx + Math.sin(p.wobble) * 0.8 * CDPR;
+          p.y += p.vy;
+          p.rot += p.vrot;
+          if (p.y > CH + 40 * CDPR) {
+            confetti.splice(i, 1);
+            continue;
+          }
+          cCtx.save();
+          cCtx.translate(p.x, p.y);
+          cCtx.rotate(p.rot);
+          cCtx.fillStyle = p.color;
+          // Skewed rectangle looks more like fluttering paper
+          const sx = Math.cos(p.wobble) * 0.4;
+          cCtx.transform(1, 0, sx, 1, 0, 0);
+          cCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          cCtx.restore();
+        }
+        if (cRunning) requestAnimationFrame(cDraw);
+      }
+
+      function startCelebration() {
+        cCanvas.classList.add("on");
+        stampEl.classList.add("on");
+        document.body.classList.add("shake");
+        cRunning = true;
+        cDraw();
+        // Big opening burst timed to the stamp impact.
+        setTimeout(() => spawnConfetti(220), 340);
+        // Continuous rain.
+        setInterval(() => spawnConfetti(8), 120);
+      }
+
+      // Manual trigger for previewing before Aug 21.
+      if (new URLSearchParams(location.search).has("celebrate")) {
+        celebrated = true;
+        startCelebration();
+      }
+
+      // If page loads already past LEAVE, fire immediately.
+      if (new Date() >= LEAVE && !celebrated) {
+        celebrated = true;
+        startCelebration();
+      }
     </script>
   </body>
 </html>
