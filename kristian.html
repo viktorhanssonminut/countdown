@@ -213,7 +213,7 @@
         position: relative;
       }
       .uptime::before {
-        content: "system.uptime";
+        content: "release.countdown";
         position: absolute;
         top: -9px;
         left: 20px;
@@ -518,7 +518,7 @@
             <span>specimen no.</span>
             <span class="id">K.BERG · 001</span>
             <span class="sep">·</span>
-            <span>onset 2022-01-10</span>
+            <span>onset 2022-01-10 · sunset 2026-08-21</span>
           </div>
 
           <div>
@@ -532,14 +532,15 @@
             Backend engineer at Minut. Cuts the releases, tags them, tidies
             Rollbar behind them. Lives in be-core, occasionally in the web
             client, and — since 10 July — in a Malmö shop that serves
-            pickled chanterelle hors d'oeuvres.
+            pickled chanterelle hors d'oeuvres. Last day
+            <b>21 August 2026</b>.
           </p>
 
           <div class="uptime" role="timer" aria-live="polite">
             <div class="uptime-line">
               <div class="up-days">
                 <span class="n" id="uDays">0</span>
-                <span class="lbl">days at minut</span>
+                <span class="lbl">days until 21 aug</span>
               </div>
               <div class="sep-v"></div>
               <div class="up-time">
@@ -550,8 +551,8 @@
               </div>
             </div>
             <div class="uptime-meta">
-              <span>since 2022-01-10 · malmö</span>
-              <span class="status"><span class="dot"></span>50% · running</span>
+              <span>last day 21 aug 2026 · 17:00 · malmö</span>
+              <span class="status"><span class="dot"></span>50% · winding down</span>
             </div>
           </div>
         </div>
@@ -626,7 +627,7 @@
     </div>
 
     <script>
-      const START = new Date(2022, 0, 10, 9, 0, 0); // 10 Jan 2022 · 09:00 local
+      const LEAVE = new Date(2026, 7, 21, 17, 0, 0); // 21 Aug 2026 · 17:00
       const HALF_TIME = new Date(2026, 5, 1); // 1 Jun 2026
       const SHOP = new Date(2026, 6, 10); // 10 Jul 2026
 
@@ -689,7 +690,7 @@
 
       function tick() {
         const now = new Date();
-        const secs = Math.max(0, Math.floor((now - START) / 1000));
+        const secs = Math.max(0, Math.floor((LEAVE - now) / 1000));
         const d = Math.floor(secs / 86400);
         const h = Math.floor((secs % 86400) / 3600);
         const m = Math.floor((secs % 3600) / 60);
