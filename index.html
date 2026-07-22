@@ -19,10 +19,11 @@
         --ink-dim: #8a7f6e;
         --line: rgba(26, 22, 17, 0.14);
         --line-soft: rgba(26, 22, 17, 0.07);
-        --brick: #c14a2b;
+        --accent: #3d6b3a;
+        --accent-soft: rgba(61, 107, 58, 0.25);
         --moss: #4c6b3f;
-        --mustard: #d4a54a;
-        --highlight: #f6e8a8;
+        --mustard: #b78a2f;
+        --highlight: #eadfa1;
       }
 
       * {
@@ -108,7 +109,7 @@
       .brand-mark {
         width: 10px;
         height: 10px;
-        background: var(--brick);
+        background: var(--accent);
         transform: rotate(45deg);
       }
 
@@ -156,7 +157,7 @@
       }
       h1 em {
         font-style: italic;
-        color: var(--brick);
+        color: var(--accent);
       }
 
       .leave-badge {
@@ -202,21 +203,21 @@
       }
 
       .tile.accent {
-        background: #efe2c1;
-        border-color: rgba(193, 74, 43, 0.25);
+        background: #e6ecdb;
+        border-color: var(--accent-soft);
       }
 
       .tile .num {
         font-family: "JetBrains Mono", monospace;
         font-weight: 700;
-        font-size: clamp(72px, 12vw, 190px);
+        font-size: clamp(52px, 8.4vw, 128px);
         line-height: 0.9;
         letter-spacing: -0.03em;
         color: var(--ink);
         font-variant-numeric: tabular-nums;
       }
 
-      .tile.accent .num { color: var(--brick); }
+      .tile.accent .num { color: var(--accent); }
 
       .tile .lbl {
         margin-top: 10px;
@@ -254,8 +255,8 @@
         width: 0%;
         background: repeating-linear-gradient(
           45deg,
-          var(--brick),
-          var(--brick) 6px,
+          var(--accent),
+          var(--accent) 6px,
           var(--mustard) 6px,
           var(--mustard) 12px
         );
@@ -281,24 +282,36 @@
         border-top: 1px solid var(--line);
       }
 
-      .quote {
-        font-family: "Inter", system-ui, -apple-system, sans-serif;
-        font-style: italic;
-        font-size: clamp(15px, 1.5vw, 20px);
-        line-height: 1.4;
-        color: var(--ink);
-        border-left: 3px solid var(--mustard);
-        padding-left: 16px;
+      .factcard {
+        display: grid;
+        gap: 8px;
+        padding: clamp(12px, 1.6vh, 18px) clamp(14px, 1.6vw, 22px);
+        background: var(--paper-2);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 4px;
+        min-width: 0;
       }
-      .quote cite {
-        display: block;
-        margin-top: 6px;
+      .factcard .flabel {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
         font-family: "JetBrains Mono", monospace;
-        font-size: 10px;
+        font-size: 10.5px;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: var(--ink-mid);
-        font-style: normal;
+        color: var(--ink-dim);
+      }
+      .factcard .flabel b {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .factcard .ftext {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-size: clamp(14px, 1.35vw, 18px);
+        line-height: 1.4;
+        color: var(--ink);
+        font-weight: 400;
       }
 
       .stats {
@@ -341,7 +354,7 @@
         transform: translate(-50%, -50%) rotate(-8deg) scale(3.5);
         opacity: 0;
         pointer-events: none;
-        color: var(--brick);
+        color: var(--accent);
         border: 6px solid currentColor;
         padding: clamp(14px, 2vh, 22px) clamp(26px, 5vw, 56px)
           clamp(18px, 2.5vh, 28px);
@@ -471,10 +484,12 @@
       </div>
 
       <div class="footstrip">
-        <div class="quote">
-          "More customer interviews than anyone. Always in the details, never
-          let quality slip."
-          <cite>— Nils</cite>
+        <div class="factcard" aria-live="polite">
+          <div class="flabel">
+            <span>fun fact of the day</span>
+            <span><b id="factN">01</b> / 30</span>
+          </div>
+          <div class="ftext" id="factText">—</div>
         </div>
         <div class="stats">
           <div class="stat">
@@ -515,6 +530,54 @@
       const tenureEl = document.getElementById("tenure");
 
       const pad = (n, len) => String(n).padStart(len, "0");
+
+      // ---------------------------------------------------------------
+      // Fact of the day — cycles through 30 facts, one per calendar day.
+      // ---------------------------------------------------------------
+      const FACTS = [
+        "Started at Minut on 6 April 2020 — as Content Marketing Executive, not in product. Intro post: “I’m going to be producing video, and social media/marketing content in general.”",
+        "Her first week was almost entirely intro calls — she listed “Calls with Christer, Hannah, Fredrik, Kent and My” as a full day’s work (9 Apr 2020).",
+        "She posted a daily standup list in #marketingteam every morning for her first months, always opening with “Good morning everyone!”",
+        "Her onboarding included “Finish MacBook set-up” as an official task (9 Apr 2020).",
+        "Day three on the job she was already questioning company file structure — asked why design source files weren’t on Google Drive: “at my previous company, we backed everything up on Google Drive.”",
+        "First tool opinion ever expressed at Minut: Later.com > Hootsuite, because of the link-in-bio feature (15 Apr 2020).",
+        "Six years and four months. Last day 21 August 2026 — she’s outlasted several entire eras of the company.",
+        "She ran Minut’s Instagram, Facebook, LinkedIn and YouTube — including manually writing and editing video subtitles (Dec 2021).",
+        "She wrote the privacy quote Minut gave to the Daily Mail in Dec 2022, attributed to Marcus, drafted in about 20 minutes on a holiday week when nobody else was in the office.",
+        "In that same thread she quietly changed “monitors decibel levels” to “monitors sound” — “people generally don’t understand ‘decibel levels’.” That phrasing is still roughly how Minut describes the sensor.",
+        "She sent a company-wide email with a typo, then a correction email, then apologised three separate times in the same thread (29 Dec 2022). Nils approved the correction.",
+        "She translated a Spanish customer email from Joel Badía well enough to run a sales thread off it (23 Dec 2021).",
+        "Unofficial language desk: pre-translated German residential terminology by reverse-engineering what Airbnb and Booking.com use, then asked #general “does anyone here speak Italian and/or German?” (2 Aug 2024).",
+        "Polish source-checking: when English blogs claimed Poland required CO detectors everywhere, she read the actual Polish government regulation and found it only applies where fuel is burned (13 Apr 2026).",
+        "She was working on 28–30 December in 2021, 2022 and 2023. Three consecutive Christmas weeks.",
+        "Formally stepped into product management for the GXP team in Sept 2024, covering for Katrin Humal’s parental leave. It stuck.",
+        "She named the hardware. In Dec 2023 she ran the naming process for project Eureka — options included Minut Sense, Minut Nook, Minut Shelter, Minut G3/S1. She argued for the boring option and won. That’s why they’re called the M3 and S1.",
+        "Her pitch for boring names included an SEO argument, a B2B argument, and a “we can drop the word Minut in copy” argument. Marketing brain in a PM seat.",
+        "She asked “what does the 3 stand for in Eureka?” — i.e. she named the product line while still learning the internal codenames.",
+        "Nils’s leaving post says she “has run more customer interviews than anyone” at Minut.",
+        "Features with her fingerprints: Tasks, the guest app, reports, cigarette smoke detection, the Seam lock integration (17 providers at once), Schlage, Australian SMS, Japanese autocall.",
+        "She personally got SMS switched on for Australian numbers because both Support and Sales customers asked — and publicly credited Tanvi for it rather than herself.",
+        "She is the reason anyone at Minut knows what shipped. The “What’s launched recently” posts in #topic-product are hers, written by hand, unprompted, for years.",
+        "She has spent an improbable share of her career on the Contact role — first sunsetting it, then migrating existing users off it, then doing forensic archaeology on when MEMBER lost home_create (traced it to Elias, 21 Dec 2023, ticket PRD-1848).",
+        "Signature move: reading the actual code. On her second-to-last week she read PR #6876 to settle an integrations argument, then opened with “Turns out we were both a bit off, so let me set the record straight” — and corrected herself first.",
+        "She built her own AI workflow before it was a company thing: Claude reads the release channels and the code, drafts the product-log entry, she approves, it posts to Notion.",
+        "Reliable epistemic honesty. “I haven’t been very involved in cigarette smoke detection, so I don’t have the necessary context here.” She hands work to whoever actually knows.",
+        "Emoji fingerprint: :aaah:, :see_no_evil:, :celebrationqq:, :woman-bowing:, :baby-yoda_hi:.",
+        "Her birthday is 1 March. Greetings land on 1 Mar 2024, 3 Mar 2025, 2 Mar 2026 — it drifts to the nearest working day.",
+        "She reliably posts happy-birthday messages to other people in #general, in the right language where she can — “Feliz cumple Neydy” (4 Jun 2024).",
+      ];
+
+      function pickFact() {
+        const now = new Date();
+        // Local-day epoch so it flips at midnight in the viewer's timezone.
+        const localDay = Math.floor(
+          (now - now.getTimezoneOffset() * 60000) / 86400000
+        );
+        const idx = ((localDay % FACTS.length) + FACTS.length) % FACTS.length;
+        document.getElementById("factText").textContent = FACTS[idx];
+        document.getElementById("factN").textContent = pad(idx + 1, 2);
+      }
+      pickFact();
 
       let celebrated = false;
       function tick() {
@@ -582,7 +645,7 @@
       window.addEventListener("resize", cResize);
 
       const CONFETTI_COLORS = [
-        "#c14a2b", // brick
+        "#3d6b3a", // accent (moss green)
         "#d4a54a", // mustard
         "#4c6b3f", // moss
         "#7ba7c9", // sky
