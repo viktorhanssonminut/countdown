@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alicja Jader · farewell changelog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f2ebdc;
+        --paper-2: #ece3cf;
+        --ink: #1a1611;
+        --ink-mid: #5a5145;
+        --ink-dim: #8a7f6e;
+        --line: rgba(26, 22, 17, 0.14);
+        --line-soft: rgba(26, 22, 17, 0.07);
+        --brick: #c14a2b;
+        --moss: #4c6b3f;
+        --mustard: #d4a54a;
+        --sky: #7ba7c9;
+        --highlight: #f6e8a8;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* Ruled-paper texture */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background-image:
+          linear-gradient(var(--line-soft) 1px, transparent 1px);
+        background-size: 100% 32px;
+        opacity: 0.7;
+        pointer-events: none;
+      }
+
+      /* Very subtle paper grain */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.28;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0.10 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      }
+
+      .wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 40px clamp(24px, 5vw, 72px) 80px;
+      }
+
+      /* Top bar */
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--line);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        letter-spacing: 0.08em;
+        color: var(--ink-mid);
+        text-transform: uppercase;
+      }
+
+      .topbar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+      }
+
+      .brand-mark {
+        width: 10px;
+        height: 10px;
+        background: var(--brick);
+        transform: rotate(45deg);
+        margin-right: 2px;
+      }
+
+      /* Title block */
+      .title-block {
+        margin-top: 56px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: end;
+        gap: 24px;
+      }
+
+      .path {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: var(--ink-mid);
+        letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .path .slash {
+        color: var(--ink-dim);
+      }
+      .path .tag {
+        background: var(--highlight);
+        color: var(--ink);
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-weight: 500;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-left: 6px;
+      }
+
+      h1 {
+        margin-top: 10px;
+        font-family: "Instrument Serif", "Times New Roman", serif;
+        font-weight: 400;
+        font-size: clamp(46px, 6.5vw, 88px);
+        line-height: 1;
+        letter-spacing: -0.015em;
+      }
+
+      h1 em {
+        font-style: italic;
+        color: var(--brick);
+      }
+
+      .subtitle {
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-size: clamp(18px, 2vw, 22px);
+        color: var(--ink-mid);
+        margin-top: 12px;
+        max-width: 44ch;
+      }
+
+      /* Version / countdown display */
+      .version {
+        margin-top: 56px;
+        padding: 40px clamp(20px, 4vw, 56px);
+        background: var(--paper-2);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        position: relative;
+        display: grid;
+        gap: 18px;
+      }
+
+      .version::before {
+        content: "release_countdown.txt";
+        position: absolute;
+        top: -10px;
+        left: 24px;
+        background: var(--paper);
+        padding: 0 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: var(--ink-dim);
+        text-transform: uppercase;
+      }
+
+      .v-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--ink-dim);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .v-number {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: clamp(48px, 9vw, 128px);
+        line-height: 0.95;
+        color: var(--ink);
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 0.06em;
+      }
+
+      .v-number .dot {
+        color: var(--brick);
+        margin: 0 0.02em;
+      }
+
+      .v-number .cursor {
+        display: inline-block;
+        width: 0.5em;
+        height: 0.9em;
+        background: var(--ink);
+        margin-left: 0.15em;
+        transform: translateY(0.05em);
+        animation: blink 1s steps(2) infinite;
+      }
+
+      @keyframes blink {
+        50% { opacity: 0; }
+      }
+
+      .v-legend {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-dim);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .v-legend span {
+        border-top: 1px solid var(--line);
+        padding-top: 8px;
+      }
+
+      /* Two-column body */
+      .grid {
+        margin-top: 56px;
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: clamp(32px, 5vw, 72px);
+      }
+
+      section h2 {
+        font-family: "Instrument Serif", serif;
+        font-weight: 400;
+        font-size: clamp(24px, 2.6vw, 32px);
+        letter-spacing: -0.01em;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+      }
+
+      section h2::before {
+        content: "§";
+        color: var(--brick);
+        font-style: italic;
+      }
+
+      /* Changelog */
+      .changelog {
+        display: grid;
+        gap: 18px;
+      }
+
+      .change {
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        gap: 18px;
+        padding-bottom: 18px;
+        border-bottom: 1px dashed var(--line);
+      }
+
+      .change:last-child {
+        border-bottom: none;
+      }
+
+      .change .k {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--brick);
+        padding-top: 4px;
+      }
+
+      .change .v {
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--ink);
+      }
+
+      .change .v em {
+        color: var(--ink-mid);
+        font-style: italic;
+      }
+
+      /* Sidebar */
+      aside {
+        display: grid;
+        gap: 36px;
+        align-content: start;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 24px;
+      }
+
+      .stat {
+        padding: 14px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .stat .v {
+        font-family: "Instrument Serif", serif;
+        font-size: clamp(26px, 3vw, 34px);
+        line-height: 1.05;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .stat .k {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        color: var(--ink-dim);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 6px;
+      }
+
+      /* Quote */
+      .quote {
+        background: var(--highlight);
+        border-left: 3px solid var(--mustard);
+        padding: 22px 24px 22px 22px;
+        position: relative;
+        transform: rotate(-0.4deg);
+      }
+
+      .quote p {
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-size: 19px;
+        line-height: 1.4;
+        color: var(--ink);
+      }
+
+      .quote cite {
+        display: block;
+        margin-top: 12px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-mid);
+        font-style: normal;
+      }
+
+      /* Notes / footer */
+      .notes {
+        margin-top: 64px;
+        padding-top: 28px;
+        border-top: 1px solid var(--line);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--ink-dim);
+        display: grid;
+        gap: 8px;
+      }
+
+      .notes span {
+        display: flex;
+        gap: 12px;
+      }
+
+      .notes span::before {
+        content: "//";
+        color: var(--moss);
+      }
+
+      /* Progress line */
+      .progress {
+        margin-top: 32px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .progress .track {
+        height: 3px;
+        background: var(--line-soft);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .progress .fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 0%;
+        background: repeating-linear-gradient(
+          45deg,
+          var(--brick),
+          var(--brick) 6px,
+          var(--mustard) 6px,
+          var(--mustard) 12px
+        );
+        transition: width 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+
+      .progress .meta {
+        display: flex;
+        justify-content: space-between;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-dim);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      /* Signoff */
+      .signoff {
+        margin-top: 48px;
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-size: 22px;
+        color: var(--ink-mid);
+        max-width: 44ch;
+      }
+
+      .signoff .sig {
+        display: block;
+        margin-top: 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-style: normal;
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        color: var(--ink-dim);
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 780px) {
+        .grid {
+          grid-template-columns: 1fr;
+          gap: 40px;
+        }
+        .title-block {
+          grid-template-columns: 1fr;
+          align-items: start;
+        }
+        .v-legend {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .change {
+          grid-template-columns: 1fr;
+          gap: 6px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span>Minut · Product Team</span>
+        </div>
+        <div id="today">—</div>
+      </div>
+
+      <div class="title-block">
+        <div>
+          <div class="path">
+            <span>changelog</span><span class="slash">/</span>
+            <span>alicja-jader</span>
+            <span class="tag">final release</span>
+          </div>
+          <h1>Alicja Jader,<br /><em>shipping out.</em></h1>
+          <p class="subtitle">
+            Product Manager, GXP · Amsterdam. Deprecating on
+            <b id="leaveDate">21 August 2026</b>.
+          </p>
+        </div>
+      </div>
+
+      <div class="version" role="timer" aria-live="polite">
+        <div class="v-label">Countdown · v-format · dd.hh.mm.ss</div>
+        <div class="v-number">
+          <span id="vDays">0000</span><span class="dot">.</span><span id="vHours">00</span><span class="dot">.</span><span id="vMins">00</span><span class="dot">.</span><span id="vSecs">00</span><span class="cursor" aria-hidden="true"></span>
+        </div>
+        <div class="v-legend">
+          <span>days</span><span>hours</span><span>minutes</span><span>seconds</span>
+        </div>
+
+        <div class="progress" aria-hidden="true">
+          <div class="track"><div class="fill" id="fill"></div></div>
+          <div class="meta">
+            <span>tenure elapsed <b id="pct">0%</b></span>
+            <span>joined 06 apr 2020</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <section>
+          <h2>Changelog · greatest hits</h2>
+          <div class="changelog">
+            <div class="change">
+              <div class="k">v1 · guest app</div>
+              <div class="v">
+                Owner contact, multi-photo w/ cover, PDF house manual,
+                directions. <em>The bits guests actually see.</em>
+              </div>
+            </div>
+            <div class="change">
+              <div class="k">v2 · tasks</div>
+              <div class="v">
+                Templates, automations, AI task assistant.
+                <em>Ran a 7–9 customer interview program on this alone.</em>
+              </div>
+            </div>
+            <div class="change">
+              <div class="k">v3 · messaging</div>
+              <div class="v">
+                SMS &amp; autocall to guest, Australian SMS licensing,
+                Japanese support. <em>Deeply unglamorous, deeply needed.</em>
+              </div>
+            </div>
+            <div class="change">
+              <div class="k">v4 · locks</div>
+              <div class="v">
+                Schlage launch &amp; co-marketing. Tado limitations
+                documented so sales stops promising them.
+              </div>
+            </div>
+            <div class="change">
+              <div class="k">v5 · roles</div>
+              <div class="v">
+                Sunset of the Contact/Responder role, migration of every
+                existing user, permissions archaeology throughout.
+              </div>
+            </div>
+            <div class="change">
+              <div class="k">v6 · comms</div>
+              <div class="v">
+                The <code>#topic-product</code> launch posts and the Notion
+                product-updates log. <em>The reason CS knew what shipped.</em>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside>
+          <section>
+            <h2>Stats</h2>
+            <div class="stats">
+              <div class="stat">
+                <div class="v" id="tenure">—</div>
+                <div class="k">years at Minut</div>
+              </div>
+              <div class="stat">
+                <div class="v">most</div>
+                <div class="k">customer interviews, ever</div>
+              </div>
+              <div class="stat">
+                <div class="v">GXP</div>
+                <div class="k">team</div>
+              </div>
+              <div class="stat">
+                <div class="v">CEST</div>
+                <div class="k">Amsterdam timezone</div>
+              </div>
+            </div>
+          </section>
+
+          <div class="quote">
+            <p>
+              Joined in 2020. More customer interviews than anyone. Always in
+              the details and never let quality slip. Would always be welcome
+              back.
+            </p>
+            <cite>— Nils, 21 Jul 2026</cite>
+          </div>
+
+          <div class="signoff">
+            So long, and thanks for asking "is this customer-facing?" every
+            single time.
+            <span class="sig">— the product channel, probably</span>
+          </div>
+        </aside>
+      </div>
+
+      <div class="notes">
+        <span>timezone: Europe/Amsterdam · last day close-of-business (17:00 CEST)</span>
+        <span>joined 2020-04-06 as Content Marketing Executive · moved into product</span>
+        <span>tools of the trade: customer interviews, Notion, and, apparently, Claude</span>
+      </div>
+    </div>
+
+    <script>
+      const LEAVE = new Date(2026, 7, 21, 17, 0, 0, 0); // Aug 21, 2026 · 17:00
+      const JOINED = new Date(2020, 3, 6); // Apr 6, 2020
+
+      const vDays = document.getElementById("vDays");
+      const vHours = document.getElementById("vHours");
+      const vMins = document.getElementById("vMins");
+      const vSecs = document.getElementById("vSecs");
+      const todayEl = document.getElementById("today");
+      const leaveDateEl = document.getElementById("leaveDate");
+      const fillEl = document.getElementById("fill");
+      const pctEl = document.getElementById("pct");
+      const tenureEl = document.getElementById("tenure");
+
+      const pad = (n, len) => String(n).padStart(len, "0");
+
+      function tick() {
+        const now = new Date();
+        const diff = Math.max(0, LEAVE - now);
+        const totalSecs = Math.floor(diff / 1000);
+        const d = Math.floor(totalSecs / 86400);
+        const h = Math.floor((totalSecs % 86400) / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const s = totalSecs % 60;
+        vDays.textContent = pad(d, 4);
+        vHours.textContent = pad(h, 2);
+        vMins.textContent = pad(m, 2);
+        vSecs.textContent = pad(s, 2);
+      }
+      tick();
+      setInterval(tick, 1000);
+
+      const now = new Date();
+      const totalMs = LEAVE - JOINED;
+      const elapsedMs = Math.min(totalMs, Math.max(0, now - JOINED));
+      const pct = Math.min(100, Math.round((elapsedMs / totalMs) * 1000) / 10);
+      requestAnimationFrame(() => {
+        fillEl.style.width = pct + "%";
+      });
+      pctEl.textContent = pct.toFixed(1) + "%";
+
+      const yearsAtMinut = elapsedMs / (365.25 * 86400000);
+      tenureEl.textContent = yearsAtMinut.toFixed(1);
+
+      todayEl.textContent = now
+        .toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+        .toUpperCase();
+
+      leaveDateEl.textContent = LEAVE.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    </script>
+  </body>
+</html>
