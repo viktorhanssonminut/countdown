@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alicja Jader · farewell countdown</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f2ebdc;
+        --paper-2: #ece3cf;
+        --ink: #1a1611;
+        --ink-mid: #5a5145;
+        --ink-dim: #8a7f6e;
+        --line: rgba(26, 22, 17, 0.14);
+        --line-soft: rgba(26, 22, 17, 0.07);
+        --accent: #3d6b3a;
+        --accent-soft: rgba(61, 107, 58, 0.25);
+        --moss: #4c6b3f;
+        --mustard: #b78a2f;
+        --highlight: #eadfa1;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        position: relative;
+        overflow: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background-image: linear-gradient(
+          var(--line-soft) 1px,
+          transparent 1px
+        );
+        background-size: 100% 36px;
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.22;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0.10 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      }
+
+      .frame {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: clamp(16px, 2.4vh, 32px);
+        padding: clamp(18px, 3vh, 32px) clamp(28px, 5vw, 72px);
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+
+      /* Top bar */
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 24px;
+        padding-bottom: clamp(10px, 1.6vh, 18px);
+        border-bottom: 1px solid var(--line);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        letter-spacing: 0.08em;
+        color: var(--ink-mid);
+        text-transform: uppercase;
+      }
+
+      .topbar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+      }
+
+      .brand-mark {
+        width: 10px;
+        height: 10px;
+        background: var(--accent);
+        transform: rotate(45deg);
+      }
+
+      /* Hero — dominates the middle row */
+      .hero {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: clamp(14px, 2.4vh, 28px);
+        min-height: 0;
+      }
+
+      .hero-head {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: end;
+      }
+
+      .path {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--ink-mid);
+        letter-spacing: 0.04em;
+        margin-bottom: 8px;
+      }
+      .path .slash { color: var(--ink-dim); margin: 0 4px; }
+      .path .tag {
+        background: var(--highlight);
+        color: var(--ink);
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-weight: 500;
+        font-size: 10.5px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-left: 6px;
+      }
+
+      h1 {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-weight: 600;
+        font-size: clamp(38px, 5.4vw, 78px);
+        line-height: 1;
+        letter-spacing: -0.025em;
+      }
+      h1 em {
+        font-style: italic;
+        color: var(--accent);
+      }
+
+      .leave-badge {
+        text-align: right;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-dim);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .leave-badge b {
+        display: block;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(20px, 2vw, 26px);
+        color: var(--ink);
+        letter-spacing: 0;
+        text-transform: none;
+        margin-top: 4px;
+      }
+
+      /* Countdown tiles */
+      .clock {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: clamp(10px, 1.4vw, 20px);
+        align-items: stretch;
+        min-height: 0;
+      }
+
+      .tile {
+        position: relative;
+        background: var(--paper-2);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: clamp(14px, 2.4vh, 28px) clamp(10px, 1.4vw, 22px);
+        display: grid;
+        grid-template-rows: 1fr auto;
+        align-items: center;
+        justify-items: center;
+        min-height: 0;
+      }
+
+      .tile.accent {
+        background: #e6ecdb;
+        border-color: var(--accent-soft);
+      }
+
+      .tile .num {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: clamp(52px, 8.4vw, 128px);
+        line-height: 0.9;
+        letter-spacing: -0.03em;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .tile.accent .num { color: var(--accent); }
+
+      .tile .lbl {
+        margin-top: 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: clamp(10px, 0.85vw, 13px);
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--ink-dim);
+      }
+
+      .tile .corner {
+        position: absolute;
+        top: 8px;
+        left: 12px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        color: var(--ink-dim);
+        letter-spacing: 0.14em;
+      }
+
+      /* Progress line */
+      .progress {
+        display: grid;
+        gap: 8px;
+      }
+      .progress .track {
+        height: 3px;
+        background: var(--line-soft);
+        position: relative;
+        overflow: hidden;
+      }
+      .progress .fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 0%;
+        background: repeating-linear-gradient(
+          45deg,
+          var(--accent),
+          var(--accent) 6px,
+          var(--mustard) 6px,
+          var(--mustard) 12px
+        );
+        transition: width 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      .progress .meta {
+        display: flex;
+        justify-content: space-between;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-dim);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      /* Footer strip: quote + stats in one row */
+      .footstrip {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: clamp(24px, 4vw, 48px);
+        align-items: center;
+        padding-top: clamp(10px, 1.6vh, 18px);
+        border-top: 1px solid var(--line);
+      }
+
+      .factcard {
+        display: grid;
+        gap: 12px;
+        padding: clamp(18px, 2.4vh, 26px) clamp(20px, 2.2vw, 30px);
+        background: var(--paper-2);
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--accent);
+        border-radius: 5px;
+        min-width: 0;
+      }
+      .factcard .flabel {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-dim);
+      }
+      .factcard .flabel b {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .factcard .ftext {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-size: clamp(17px, 1.7vw, 22px);
+        line-height: 1.45;
+        color: var(--ink);
+        font-weight: 400;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px 24px;
+      }
+      .stat .v {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-weight: 600;
+        font-size: clamp(26px, 2.8vw, 36px);
+        line-height: 1;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+      .stat .k {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-dim);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-top: 8px;
+      }
+
+      /* Celebration overlay */
+      canvas#celebrate {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      canvas#celebrate.on { opacity: 1; }
+
+      .stamp {
+        position: fixed;
+        z-index: 25;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-8deg) scale(3.5);
+        opacity: 0;
+        pointer-events: none;
+        color: var(--accent);
+        border: 6px solid currentColor;
+        padding: clamp(14px, 2vh, 22px) clamp(26px, 5vw, 56px)
+          clamp(18px, 2.5vh, 28px);
+        text-align: center;
+        background: rgba(242, 235, 220, 0.88);
+        box-shadow:
+          inset 0 0 0 3px var(--paper),
+          inset 0 0 0 6px currentColor;
+        filter: drop-shadow(0 12px 32px rgba(26, 22, 17, 0.18));
+      }
+      .stamp.on {
+        animation:
+          stamp-slam 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+          stamp-idle 4.5s ease-in-out 0.7s infinite;
+      }
+      @keyframes stamp-slam {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(-25deg) scale(3.5);
+        }
+        60% {
+          opacity: 1;
+          transform: translate(-50%, -50%) rotate(-7deg) scale(0.95);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%) rotate(-8deg) scale(1);
+        }
+      }
+      @keyframes stamp-idle {
+        0%, 100% { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+        50% { transform: translate(-50%, -50%) rotate(-6deg) scale(1.03); }
+      }
+      .stamp .stamp-main {
+        display: block;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-weight: 700;
+        font-size: clamp(64px, 12vw, 180px);
+        line-height: 0.9;
+        letter-spacing: 0.02em;
+      }
+      .stamp .stamp-top,
+      .stamp .stamp-bot {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: clamp(11px, 1vw, 14px);
+        letter-spacing: 0.3em;
+        opacity: 0.85;
+      }
+      .stamp .stamp-top { margin-bottom: 6px; }
+      .stamp .stamp-bot { margin-top: 6px; }
+
+      body.shake .frame {
+        animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) 0.32s;
+      }
+      @keyframes shake {
+        0%, 100% { transform: translate(0, 0); }
+        20% { transform: translate(-8px, 5px); }
+        40% { transform: translate(6px, -4px); }
+        60% { transform: translate(-4px, 3px); }
+        80% { transform: translate(3px, -2px); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="topbar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span>Minut · Product Team</span>
+        </div>
+        <div id="today">—</div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-head">
+          <div>
+            <div class="path">
+              changelog<span class="slash">/</span>alicja-jader
+              <span class="tag">final release</span>
+            </div>
+            <h1>Alicja Jader, <em>shipping out.</em></h1>
+          </div>
+          <div class="leave-badge">
+            last day
+            <b id="leaveDate">21 August 2026</b>
+          </div>
+        </div>
+
+        <div class="clock" role="timer" aria-live="polite">
+          <div class="tile accent">
+            <span class="corner">01</span>
+            <div class="num" id="vDays">00</div>
+            <div class="lbl">days</div>
+          </div>
+          <div class="tile">
+            <span class="corner">02</span>
+            <div class="num" id="vHours">00</div>
+            <div class="lbl">hours</div>
+          </div>
+          <div class="tile">
+            <span class="corner">03</span>
+            <div class="num" id="vMins">00</div>
+            <div class="lbl">minutes</div>
+          </div>
+          <div class="tile">
+            <span class="corner">04</span>
+            <div class="num" id="vSecs">00</div>
+            <div class="lbl">seconds</div>
+          </div>
+        </div>
+
+        <div class="progress" aria-hidden="true">
+          <div class="track"><div class="fill" id="fill"></div></div>
+          <div class="meta">
+            <span>tenure elapsed <b id="pct">0%</b></span>
+            <span>joined 06 apr 2020</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footstrip">
+        <div class="factcard" aria-live="polite">
+          <div class="flabel">
+            <span>fun fact of the day</span>
+            <span><b id="factN">01</b> / 30</span>
+          </div>
+          <div class="ftext" id="factText">—</div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="v" id="tenure">—</div>
+            <div class="k">years at Minut</div>
+          </div>
+          <div class="stat">
+            <div class="v">GXP</div>
+            <div class="k">team</div>
+          </div>
+          <div class="stat">
+            <div class="v">CEST</div>
+            <div class="k">Amsterdam</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <canvas id="celebrate"></canvas>
+    <div class="stamp" id="stamp" aria-hidden="true">
+      <span class="stamp-top">v1.0 · release</span>
+      <span class="stamp-main">SHIPPED</span>
+      <span class="stamp-bot">21 · aug · 2026</span>
+    </div>
+
+    <script>
+      const LEAVE = new Date(2026, 7, 21, 17, 0, 0, 0); // Aug 21, 2026 · 17:00
+      const JOINED = new Date(2020, 3, 6); // Apr 6, 2020
+
+      const vDays = document.getElementById("vDays");
+      const vHours = document.getElementById("vHours");
+      const vMins = document.getElementById("vMins");
+      const vSecs = document.getElementById("vSecs");
+      const todayEl = document.getElementById("today");
+      const leaveDateEl = document.getElementById("leaveDate");
+      const fillEl = document.getElementById("fill");
+      const pctEl = document.getElementById("pct");
+      const tenureEl = document.getElementById("tenure");
+
+      const pad = (n, len) => String(n).padStart(len, "0");
+
+      // ---------------------------------------------------------------
+      // Fact of the day — cycles through 30 facts, one per calendar day.
+      // ---------------------------------------------------------------
+      const FACTS = [
+        "Started at Minut on 6 April 2020 — as Content Marketing Executive, not in product. Intro post: “I’m going to be producing video, and social media/marketing content in general.”",
+        "Her first week was almost entirely intro calls — she listed “Calls with Christer, Hannah, Fredrik, Kent and My” as a full day’s work (9 Apr 2020).",
+        "She posted a daily standup list in #marketingteam every morning for her first months, always opening with “Good morning everyone!”",
+        "Her onboarding included “Finish MacBook set-up” as an official task (9 Apr 2020).",
+        "Day three on the job she was already questioning company file structure — asked why design source files weren’t on Google Drive: “at my previous company, we backed everything up on Google Drive.”",
+        "First tool opinion ever expressed at Minut: Later.com > Hootsuite, because of the link-in-bio feature (15 Apr 2020).",
+        "Six years and four months. Last day 21 August 2026 — she’s outlasted several entire eras of the company.",
+        "She ran Minut’s Instagram, Facebook, LinkedIn and YouTube — including manually writing and editing video subtitles (Dec 2021).",
+        "She wrote the privacy quote Minut gave to the Daily Mail in Dec 2022, attributed to Marcus, drafted in about 20 minutes on a holiday week when nobody else was in the office.",
+        "In that same thread she quietly changed “monitors decibel levels” to “monitors sound” — “people generally don’t understand ‘decibel levels’.” That phrasing is still roughly how Minut describes the sensor.",
+        "She sent a company-wide email with a typo, then a correction email, then apologised three separate times in the same thread (29 Dec 2022). Nils approved the correction.",
+        "She translated a Spanish customer email from Joel Badía well enough to run a sales thread off it (23 Dec 2021).",
+        "Unofficial language desk: pre-translated German residential terminology by reverse-engineering what Airbnb and Booking.com use, then asked #general “does anyone here speak Italian and/or German?” (2 Aug 2024).",
+        "Polish source-checking: when English blogs claimed Poland required CO detectors everywhere, she read the actual Polish government regulation and found it only applies where fuel is burned (13 Apr 2026).",
+        "She was working on 28–30 December in 2021, 2022 and 2023. Three consecutive Christmas weeks.",
+        "Formally stepped into product management for the GXP team in Sept 2024, covering for Katrin Humal’s parental leave. It stuck.",
+        "She named the hardware. In Dec 2023 she ran the naming process for project Eureka — options included Minut Sense, Minut Nook, Minut Shelter, Minut G3/S1. She argued for the boring option and won. That’s why they’re called the M3 and S1.",
+        "Her pitch for boring names included an SEO argument, a B2B argument, and a “we can drop the word Minut in copy” argument. Marketing brain in a PM seat.",
+        "She asked “what does the 3 stand for in Eureka?” — i.e. she named the product line while still learning the internal codenames.",
+        "Nils’s leaving post says she “has run more customer interviews than anyone” at Minut.",
+        "Features with her fingerprints: Tasks, the guest app, reports, cigarette smoke detection, the Seam lock integration (17 providers at once), Schlage, Australian SMS, Japanese autocall.",
+        "She personally got SMS switched on for Australian numbers because both Support and Sales customers asked — and publicly credited Tanvi for it rather than herself.",
+        "She is the reason anyone at Minut knows what shipped. The “What’s launched recently” posts in #topic-product are hers, written by hand, unprompted, for years.",
+        "She has spent an improbable share of her career on the Contact role — first sunsetting it, then migrating existing users off it, then doing forensic archaeology on when MEMBER lost home_create (traced it to Elias, 21 Dec 2023, ticket PRD-1848).",
+        "Signature move: reading the actual code. On her second-to-last week she read PR #6876 to settle an integrations argument, then opened with “Turns out we were both a bit off, so let me set the record straight” — and corrected herself first.",
+        "She built her own AI workflow before it was a company thing: Claude reads the release channels and the code, drafts the product-log entry, she approves, it posts to Notion.",
+        "Reliable epistemic honesty. “I haven’t been very involved in cigarette smoke detection, so I don’t have the necessary context here.” She hands work to whoever actually knows.",
+        "Emoji fingerprint: :aaah:, :see_no_evil:, :celebrationqq:, :woman-bowing:, :baby-yoda_hi:.",
+        "Her birthday is 1 March. Greetings land on 1 Mar 2024, 3 Mar 2025, 2 Mar 2026 — it drifts to the nearest working day.",
+        "She reliably posts happy-birthday messages to other people in #general, in the right language where she can — “Feliz cumple Neydy” (4 Jun 2024).",
+      ];
+
+      function pickFact() {
+        const now = new Date();
+        // Local-day epoch so it flips at midnight in the viewer's timezone.
+        const localDay = Math.floor(
+          (now - now.getTimezoneOffset() * 60000) / 86400000
+        );
+        const idx = ((localDay % FACTS.length) + FACTS.length) % FACTS.length;
+        document.getElementById("factText").textContent = FACTS[idx];
+        document.getElementById("factN").textContent = pad(idx + 1, 2);
+      }
+      pickFact();
+
+      let celebrated = false;
+      function tick() {
+        const now = new Date();
+        const diff = Math.max(0, LEAVE - now);
+        const totalSecs = Math.floor(diff / 1000);
+        const d = Math.floor(totalSecs / 86400);
+        const h = Math.floor((totalSecs % 86400) / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const s = totalSecs % 60;
+        vDays.textContent = pad(d, 2);
+        vHours.textContent = pad(h, 2);
+        vMins.textContent = pad(m, 2);
+        vSecs.textContent = pad(s, 2);
+        if (totalSecs === 0 && !celebrated) {
+          celebrated = true;
+          setTimeout(startCelebration, 0);
+        }
+      }
+      tick();
+      setInterval(tick, 1000);
+
+      const now = new Date();
+      const totalMs = LEAVE - JOINED;
+      const elapsedMs = Math.min(totalMs, Math.max(0, now - JOINED));
+      const pct = Math.min(100, Math.round((elapsedMs / totalMs) * 1000) / 10);
+      requestAnimationFrame(() => {
+        fillEl.style.width = pct + "%";
+      });
+      pctEl.textContent = pct.toFixed(1) + "%";
+
+      const yearsAtMinut = elapsedMs / (365.25 * 86400000);
+      tenureEl.textContent = yearsAtMinut.toFixed(1);
+
+      todayEl.textContent = now
+        .toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+        .toUpperCase();
+
+      leaveDateEl.textContent = LEAVE.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+
+      // ---------------------------------------------------------------
+      // Celebration: SHIPPED stamp + paper-confetti shower
+      // ---------------------------------------------------------------
+      const cCanvas = document.getElementById("celebrate");
+      const cCtx = cCanvas.getContext("2d");
+      const stampEl = document.getElementById("stamp");
+      let CW, CH, CDPR;
+      function cResize() {
+        CDPR = Math.min(2, window.devicePixelRatio || 1);
+        CW = cCanvas.width = window.innerWidth * CDPR;
+        CH = cCanvas.height = window.innerHeight * CDPR;
+        cCanvas.style.width = window.innerWidth + "px";
+        cCanvas.style.height = window.innerHeight + "px";
+      }
+      cResize();
+      window.addEventListener("resize", cResize);
+
+      const CONFETTI_COLORS = [
+        "#3d6b3a", // accent (moss green)
+        "#d4a54a", // mustard
+        "#4c6b3f", // moss
+        "#7ba7c9", // sky
+        "#f6e8a8", // highlight
+        "#1a1611", // ink
+      ];
+      const confetti = [];
+
+      function spawnConfetti(n, opts = {}) {
+        const mode = opts.mode || "rain"; // "rain" | "cannonL" | "cannonR"
+        for (let i = 0; i < n; i++) {
+          let x, y, vx, vy;
+          if (mode === "cannonL" || mode === "cannonR") {
+            x = mode === "cannonL" ? 0 : CW;
+            y = CH * (0.85 + Math.random() * 0.1);
+            const power = (8 + Math.random() * 6) * CDPR;
+            const angle =
+              mode === "cannonL"
+                ? -Math.PI / 3 + (Math.random() - 0.5) * 0.5
+                : -Math.PI + Math.PI / 3 + (Math.random() - 0.5) * 0.5;
+            vx = Math.cos(angle) * power;
+            vy = Math.sin(angle) * power;
+          } else {
+            x = Math.random() * CW;
+            y = -20 * CDPR - Math.random() * 80 * CDPR;
+            vx = (Math.random() - 0.5) * 2.4 * CDPR;
+            vy = (1.2 + Math.random() * 2.4) * CDPR;
+          }
+          confetti.push({
+            x,
+            y,
+            w: (5 + Math.random() * 8) * CDPR,
+            h: (9 + Math.random() * 14) * CDPR,
+            vx,
+            vy,
+            grav: 0.05 * CDPR,
+            rot: Math.random() * Math.PI * 2,
+            vrot: (Math.random() - 0.5) * 0.24,
+            color:
+              CONFETTI_COLORS[
+                Math.floor(Math.random() * CONFETTI_COLORS.length)
+              ],
+            wobble: Math.random() * Math.PI * 2,
+            wobbleSpeed: 0.04 + Math.random() * 0.05,
+          });
+        }
+      }
+
+      let cRunning = false;
+      function cDraw() {
+        cCtx.clearRect(0, 0, CW, CH);
+        for (let i = confetti.length - 1; i >= 0; i--) {
+          const p = confetti[i];
+          p.wobble += p.wobbleSpeed;
+          p.vy += p.grav;
+          p.x += p.vx + Math.sin(p.wobble) * 0.8 * CDPR;
+          p.y += p.vy;
+          p.rot += p.vrot;
+          if (
+            p.y > CH + 40 * CDPR ||
+            p.x < -80 * CDPR ||
+            p.x > CW + 80 * CDPR
+          ) {
+            confetti.splice(i, 1);
+            continue;
+          }
+          cCtx.save();
+          cCtx.translate(p.x, p.y);
+          cCtx.rotate(p.rot);
+          cCtx.fillStyle = p.color;
+          // Skewed rectangle looks more like fluttering paper
+          const sx = Math.cos(p.wobble) * 0.4;
+          cCtx.transform(1, 0, sx, 1, 0, 0);
+          cCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          cCtx.restore();
+        }
+        if (cRunning) requestAnimationFrame(cDraw);
+      }
+
+      function startCelebration() {
+        cCanvas.classList.add("on");
+        stampEl.classList.add("on");
+        document.body.classList.add("shake");
+        cRunning = true;
+        cDraw();
+        // Big opening burst timed to the stamp impact.
+        setTimeout(() => spawnConfetti(260), 340);
+        // Continuous, heavier rain that never quits.
+        setInterval(() => spawnConfetti(14), 90);
+        // Recurring alternating side cannons.
+        let side = 0;
+        setInterval(() => {
+          spawnConfetti(60, { mode: side % 2 ? "cannonL" : "cannonR" });
+          side++;
+        }, 1800);
+        // Occasional oversized burst so it keeps feeling like a party.
+        setInterval(() => spawnConfetti(180), 6000);
+      }
+
+      // Manual trigger for previewing before Aug 21.
+      if (new URLSearchParams(location.search).has("celebrate")) {
+        celebrated = true;
+        startCelebration();
+      }
+
+      // If page loads already past LEAVE, fire immediately.
+      if (new Date() >= LEAVE && !celebrated) {
+        celebrated = true;
+        startCelebration();
+      }
+    </script>
+  </body>
+</html>
