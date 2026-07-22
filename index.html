@@ -555,8 +555,11 @@
 
       const today = startOfDay(new Date());
 
-      // If today is already past LEAVE, clamp to zero
-      const remaining = today > LEAVE ? 0 : workingDaysBetween(today, LEAVE);
+      // If today is already past LEAVE, clamp to zero.
+      // Days remaining is floor of the actual time left, so once we're
+      // inside the last day it reads 0 (with hours filling in the rest).
+      const msLeft = Math.max(0, LEAVE - new Date());
+      const remaining = Math.floor(msLeft / 86400000);
       const calDays = today > LEAVE ? 0 : calendarDaysBetween(today, LEAVE);
       const weekends = today > LEAVE ? 0 : weekendsBetween(today, LEAVE);
 
