@@ -226,46 +226,70 @@
         text-transform: uppercase;
       }
       .uptime-line {
-        display: flex;
-        align-items: baseline;
-        gap: 0.02em;
+        display: grid;
+        grid-template-columns: auto 1px 1fr;
+        align-items: end;
+        gap: clamp(18px, 3vw, 40px);
         font-family: "JetBrains Mono", monospace;
-        font-weight: 700;
-        font-size: clamp(46px, 7.6vw, 108px);
-        line-height: 0.95;
         color: var(--ink);
         font-variant-numeric: tabular-nums;
-        letter-spacing: -0.02em;
       }
-      .uptime-line .colon {
-        color: var(--chanterelle);
-        margin: 0 0.08em;
+      .uptime-line .sep-v {
+        align-self: stretch;
+        background: var(--line);
+        margin: 6px 0;
       }
-      .uptime-line .caret {
-        display: inline-block;
-        width: 0.12em;
-        height: 0.6em;
-        background: var(--chanterelle);
-        margin-left: 0.16em;
-        transform: translateY(-0.15em);
-        animation: caret 1s steps(2) infinite;
-      }
-      @keyframes caret { 50% { opacity: 0; } }
-      .uptime-legend {
+      .up-days {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
         gap: 8px;
-        margin-top: 14px;
-        font-family: "JetBrains Mono", monospace;
-        font-size: 10.5px;
-        letter-spacing: 0.2em;
+      }
+      .up-days .n {
+        font-weight: 700;
+        font-size: clamp(60px, 9vw, 132px);
+        line-height: 0.9;
+        letter-spacing: -0.03em;
+      }
+      .up-days .lbl {
+        font-size: 11px;
+        letter-spacing: 0.24em;
         text-transform: uppercase;
         color: var(--ink-dim);
       }
-      .uptime-legend span {
-        border-top: 1px solid var(--line-soft);
-        padding-top: 6px;
+      .up-time {
+        display: grid;
+        gap: 8px;
+        justify-items: start;
       }
+      .up-time .row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.06em;
+        font-weight: 500;
+        font-size: clamp(28px, 3.6vw, 52px);
+        line-height: 1;
+        color: var(--ink-mid);
+        letter-spacing: -0.01em;
+      }
+      .up-time .row .colon {
+        color: var(--chanterelle);
+        margin: 0 0.1em;
+      }
+      .up-time .row .caret {
+        display: inline-block;
+        width: 0.09em;
+        height: 0.65em;
+        background: var(--chanterelle);
+        margin-left: 0.2em;
+        transform: translateY(-0.1em);
+        animation: caret 1s steps(2) infinite;
+      }
+      .up-time .lbl {
+        font-size: 11px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--ink-dim);
+      }
+      @keyframes caret { 50% { opacity: 0; } }
       .uptime-meta {
         margin-top: 12px;
         display: flex;
@@ -424,6 +448,37 @@
         line-height: 1.5;
         color: var(--ink);
       }
+      .factcard {
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--chanterelle);
+        border-radius: 5px;
+        padding: clamp(16px, 2.2vh, 24px) clamp(18px, 2vw, 26px);
+        display: grid;
+        gap: 12px;
+        min-width: 0;
+      }
+      .factcard .flabel {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-dim);
+      }
+      .factcard .flabel b {
+        color: var(--chanterelle);
+        font-weight: 700;
+      }
+      .factcard .ftext {
+        font-family: "IBM Plex Serif", serif;
+        font-size: clamp(15px, 1.45vw, 19px);
+        line-height: 1.45;
+        color: var(--ink);
+      }
+
       .foot-block .notes em {
         color: var(--chanterelle);
         font-style: italic;
@@ -482,13 +537,20 @@
 
           <div class="uptime" role="timer" aria-live="polite">
             <div class="uptime-line">
-              <span id="uDays">0000</span><span class="colon">:</span><span id="uHours">00</span><span class="colon">:</span><span id="uMins">00</span><span class="colon">:</span><span id="uSecs">00</span><span class="caret" aria-hidden="true"></span>
-            </div>
-            <div class="uptime-legend">
-              <span>days</span><span>hours</span><span>minutes</span><span>seconds</span>
+              <div class="up-days">
+                <span class="n" id="uDays">0</span>
+                <span class="lbl">days at minut</span>
+              </div>
+              <div class="sep-v"></div>
+              <div class="up-time">
+                <div class="row">
+                  <span id="uHours">00</span><span class="colon">:</span><span id="uMins">00</span><span class="colon">:</span><span id="uSecs">00</span><span class="caret" aria-hidden="true"></span>
+                </div>
+                <span class="lbl">hh · mm · ss</span>
+              </div>
             </div>
             <div class="uptime-meta">
-              <span>since 2022-01-10 · malmö · UTC+02:00</span>
+              <span>since 2022-01-10 · malmö</span>
               <span class="status"><span class="dot"></span>50% · running</span>
             </div>
           </div>
@@ -544,23 +606,20 @@
       </div>
 
       <div class="footstrip">
-        <div class="foot-block">
-          <h3>what he keeps upright</h3>
-          <ul>
-            <li>be-core · the backend. Full-stack when the frontend blocks him.</li>
-            <li>Release trains: cut PR, tag, deploy, verify, post the summary.</li>
-            <li>Rollbar reconciliation. The housekeeping most people skip.</li>
-            <li>Second-line rotation (half-covered, per his own note).</li>
-            <li>Test infra: fixtures, fake-services, why-your-tests-fail.</li>
-          </ul>
+        <div class="factcard" aria-live="polite">
+          <div class="flabel">
+            <span>field observation of the day</span>
+            <span><b id="factN">01</b> / 30</span>
+          </div>
+          <div class="ftext" id="factText">—</div>
         </div>
         <div class="foot-block">
           <h3>field notes</h3>
           <p class="notes">
-            <b>Since 1 Jun 2026:</b> Mon, Tue, half-Wed. <em>The only engineer on GXP, at 50%.</em>
-            Grand opening in Malmö on <b>10 Jul 2026</b>, chanterelles pickled at home.
-            AI-critical but AI-fluent: had Claude find the missing MongoDB indices on
-            <code>guestMessages</code> — prod had only <code>_id</code> and <code>guestId</code>.
+            <b>Half-time since 1 Jun 2026</b> — Mon, Tue, half-Wed.
+            <em>Only engineer on GXP, at 50%.</em>
+            Grand opening at Svampskogen (Möllan) on <b>10 Jul 2026</b>,
+            homemade pickled chanterelles.
           </p>
         </div>
       </div>
@@ -581,6 +640,53 @@
 
       const pad = (n, len) => String(n).padStart(len, "0");
 
+      // ---------------------------------------------------------------
+      // Field observation of the day — cycles through 30, one per day.
+      // ---------------------------------------------------------------
+      const FACTS = [
+        "First day 10 January 2022. Posted “Hello Engineering channel!” at 11:00 — and didn’t get around to introducing himself in #general until 14:05. Priorities.",
+        "That intro mentioned the Malmö office specifically. He’s been an office person from hour one.",
+        "Day three, he asked the question everyone was too embarrassed to ask: “What is Automation Wednesday?”",
+        "Day four he was off sick and immediately hit the real onboarding boss fight: “I’m supposed to report this in fortnox right? What’s the url?” — followed the next day by “I can’t figure out how to record sick days in fortnox though, gonna need help with that :sweat_smile:”.",
+        "His first technical opinion at Minut was a REST client preference: “I’m leaning towards Postman” (14 Jan 2022).",
+        "His fifth day was spent fighting EACCES: permission denied in the Docker test setup — the same test infrastructure he’d end up being the company expert on.",
+        "He tried to take the whole engineering team foraging at the 2023 offsite — Thursday afternoon before dinner, RSVP by reacting with :mushroom:.",
+        "That invite included footwear advice: bring good shoes, “or at least an extra pair you can change to once your other pair is wet.”",
+        "It also included a menu of what they might find: “hedgehogs, oysters, cauliflowers and more!”",
+        "He edited the post to add Google Maps directions. Foraging, but project-managed.",
+        "17 September 2025 he took a day off to go mushrooming and reported back live to #site-malmö: “Taking the day off has worked out well :star-struck:”, then “Big bois :mushroom:”, then announced he was heading to Beddingestrand alone the next day. A two-day solo mushroom bender.",
+        "He opened Svampskogen at Möllan and invited the entire company to the grand opening on 10 July 2026.",
+        "At that opening he served homemade pickled chanterelle hors d’oeuvres. He made them himself.",
+        "He went half-time on 1 June 2026 — Monday, Tuesday and half of Wednesday — to build the shop. He announced it himself, with a plan for how his code reviews would still get approved.",
+        "He hosted a screening of Airplane! at the office (Titta vi flyger) on 29 January 2026, complete with IMDb link and a 17:30 start.",
+        "He organised the pizza for it from Modomio, ran the orders in a thread, and paid with :minuti-money:.",
+        "In the run-up he had to ask “what’s the go to pizzeria around the office?” — he’d been there four years.",
+        "His wife Eira sold arts and crafts at Mitt Möllan’s Christmas market in Nov 2025; he invited the office and spent the weekend helping her run the stall.",
+        "He recommended Malmö Scenfest to the team, having read the whole programme, and flagged the beatboxing show with an :eyes:.",
+        "He went to see Salvatore Ganacci in August 2025 and openly invited colleagues along.",
+        "Lunch philosophy, in full: “I’m going to Ica as per usual :wink:”",
+        "Also from him: “Where’s the lunch train headed?”",
+        "Per Marcus’s announcement, he “made the people around him better by challenging the status quo and pushing for clean code,” and found a couple of security catches along the way.",
+        "He owns the smart lock integrations — the thing a big part of Minut’s guest experience now runs on.",
+        "He runs releases end to end: release PR, tag, Notion doc, deploy, then a verification post covering API health, a 10-minute Rollbar window and the deploy-bot confirmation. Then he goes back and closes the obsolete production errors nobody else would have.",
+        "He found the 180-day report bug by reasoning about it properly: manual date selection correctly refuses a too-long range, the “last year” button incorrectly doesn’t. Diagnosed and claimed the fix in one message.",
+        "He is the resident AI skeptic-who-uses-it-constantly: “is it just me or is claude spending way more time to make simple fixes recently? It just spent 30k tokens and 17 minutes fixing a few minor comments,” and separately that AI-written docs are “too wordy, too detailed and misplaced… counterproductive imo.”",
+        "He also had Claude audit the guestMessages indices and discovered production had exactly two — _id and guestId. Then proposed dropping the now-redundant one and asked “any objections?”",
+        "Pure curiosity energy: when a site blocked devtools, he blocked the script instead, confirmed it made no network requests at all, and concluded the block was just to “protect” their code — with an :upside_down_face:.",
+        "Gentlest possible way to tell a colleague their message made no sense: “I’m having a hard time parsing your first sentence :sweat_smile:”",
+      ];
+
+      function pickFact() {
+        const now = new Date();
+        const localDay = Math.floor(
+          (now - now.getTimezoneOffset() * 60000) / 86400000
+        );
+        const idx = ((localDay % FACTS.length) + FACTS.length) % FACTS.length;
+        document.getElementById("factText").textContent = FACTS[idx];
+        document.getElementById("factN").textContent = pad(idx + 1, 2);
+      }
+      pickFact();
+
       function tick() {
         const now = new Date();
         const secs = Math.max(0, Math.floor((now - START) / 1000));
@@ -588,7 +694,7 @@
         const h = Math.floor((secs % 86400) / 3600);
         const m = Math.floor((secs % 3600) / 60);
         const s = secs % 60;
-        uDays.textContent = pad(d, 4);
+        uDays.textContent = d.toLocaleString("en-GB");
         uHours.textContent = pad(h, 2);
         uMins.textContent = pad(m, 2);
         uSecs.textContent = pad(s, 2);
