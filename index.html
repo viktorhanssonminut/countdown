@@ -11,11 +11,27 @@
         padding: 0;
         height: 100%;
         overflow: hidden;
-        background: #0f1310;
+        background: #0a0b0d;
       }
       .stage {
         position: fixed;
         inset: 0;
+        display: grid;
+        place-items: center;
+      }
+      .viewport {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      /* Desktop: constrain to a 16:9 rectangle centered with dark letterbox. */
+      @media (min-width: 781px) {
+        .viewport {
+          aspect-ratio: 16 / 9;
+          width: min(100vw, calc(100vh * 16 / 9));
+          height: min(100vh, calc(100vw * 9 / 16));
+        }
       }
       iframe {
         position: absolute;
@@ -31,12 +47,21 @@
         opacity: 1;
         pointer-events: auto;
       }
+      /* Mobile: no letterbox, iframes fill; the child pages handle their own scrolling */
+      @media (max-width: 780px) {
+        html,
+        body {
+          overflow: hidden;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="stage">
-      <iframe id="a" src="alicja.html" title="Alicja"></iframe>
-      <iframe id="b" src="kristian.html" title="Kristian"></iframe>
+      <div class="viewport">
+        <iframe id="a" src="alicja.html" title="Alicja"></iframe>
+        <iframe id="b" src="kristian.html" title="Kristian"></iframe>
+      </div>
     </div>
     <script>
       const INTERVAL_MS = 60000;
