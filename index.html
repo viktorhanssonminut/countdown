@@ -600,7 +600,9 @@
         countSecsEl.textContent = String(s).padStart(2, "0");
         if (secs === 0 && !fireworksStarted) {
           fireworksStarted = true;
-          startFireworks();
+          // Defer: on the initial tick, fireworks setup (canvas, ctx)
+          // further down the script hasn't run yet.
+          setTimeout(startFireworks, 0);
         }
       }
       tickHours();
