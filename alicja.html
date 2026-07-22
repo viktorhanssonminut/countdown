@@ -353,7 +353,9 @@
         filter: drop-shadow(0 12px 32px rgba(26, 22, 17, 0.18));
       }
       .stamp.on {
-        animation: stamp-slam 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        animation:
+          stamp-slam 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+          stamp-idle 4.5s ease-in-out 0.7s infinite;
       }
       @keyframes stamp-slam {
         0% {
@@ -368,6 +370,10 @@
           opacity: 1;
           transform: translate(-50%, -50%) rotate(-8deg) scale(1);
         }
+      }
+      @keyframes stamp-idle {
+        0%, 100% { transform: translate(-50%, -50%) rotate(-8deg) scale(1); }
+        50% { transform: translate(-50%, -50%) rotate(-6deg) scale(1.03); }
       }
       .stamp .stamp-main {
         display: block;
@@ -586,16 +592,33 @@
       const confetti = [];
 
       function spawnConfetti(n, opts = {}) {
-        const fromTop = opts.fromTop !== false;
+        const mode = opts.mode || "rain"; // "rain" | "cannonL" | "cannonR"
         for (let i = 0; i < n; i++) {
+          let x, y, vx, vy;
+          if (mode === "cannonL" || mode === "cannonR") {
+            x = mode === "cannonL" ? 0 : CW;
+            y = CH * (0.85 + Math.random() * 0.1);
+            const power = (8 + Math.random() * 6) * CDPR;
+            const angle =
+              mode === "cannonL"
+                ? -Math.PI / 3 + (Math.random() - 0.5) * 0.5
+                : -Math.PI + Math.PI / 3 + (Math.random() - 0.5) * 0.5;
+            vx = Math.cos(angle) * power;
+            vy = Math.sin(angle) * power;
+          } else {
+            x = Math.random() * CW;
+            y = -20 * CDPR - Math.random() * 80 * CDPR;
+            vx = (Math.random() - 0.5) * 2.4 * CDPR;
+            vy = (1.2 + Math.random() * 2.4) * CDPR;
+          }
           confetti.push({
-            x: Math.random() * CW,
-            y: fromTop ? -20 * CDPR - Math.random() * 60 * CDPR
-                       : CH * (0.2 + Math.random() * 0.3),
+            x,
+            y,
             w: (5 + Math.random() * 8) * CDPR,
             h: (9 + Math.random() * 14) * CDPR,
-            vx: (Math.random() - 0.5) * 2.4 * CDPR,
-            vy: (1.2 + Math.random() * 2.2) * CDPR,
+            vx,
+            vy,
+            grav: 0.05 * CDPR,
             rot: Math.random() * Math.PI * 2,
             vrot: (Math.random() - 0.5) * 0.24,
             color:
@@ -614,10 +637,15 @@
         for (let i = confetti.length - 1; i >= 0; i--) {
           const p = confetti[i];
           p.wobble += p.wobbleSpeed;
+          p.vy += p.grav;
           p.x += p.vx + Math.sin(p.wobble) * 0.8 * CDPR;
           p.y += p.vy;
           p.rot += p.vrot;
-          if (p.y > CH + 40 * CDPR) {
+          if (
+            p.y > CH + 40 * CDPR ||
+            p.x < -80 * CDPR ||
+            p.x > CW + 80 * CDPR
+          ) {
             confetti.splice(i, 1);
             continue;
           }
@@ -641,9 +669,17 @@
         cRunning = true;
         cDraw();
         // Big opening burst timed to the stamp impact.
-        setTimeout(() => spawnConfetti(220), 340);
-        // Continuous rain.
-        setInterval(() => spawnConfetti(8), 120);
+        setTimeout(() => spawnConfetti(260), 340);
+        // Continuous, heavier rain that never quits.
+        setInterval(() => spawnConfetti(14), 90);
+        // Recurring alternating side cannons.
+        let side = 0;
+        setInterval(() => {
+          spawnConfetti(60, { mode: side % 2 ? "cannonL" : "cannonR" });
+          side++;
+        }, 1800);
+        // Occasional oversized burst so it keeps feeling like a party.
+        setInterval(() => spawnConfetti(180), 6000);
       }
 
       // Manual trigger for previewing before Aug 21.
