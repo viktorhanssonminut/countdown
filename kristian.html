@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kristian Berg · uptime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0f1310;
+        --bg-2: #171c18;
+        --bg-3: #1e241f;
+        --ink: #e6ddc4;
+        --ink-mid: #a89f88;
+        --ink-dim: #6e6857;
+        --ink-faint: rgba(230, 221, 196, 0.32);
+        --line: rgba(230, 221, 196, 0.14);
+        --line-soft: rgba(230, 221, 196, 0.06);
+        --chanterelle: #e8a13a;
+        --chanterelle-dark: #b47725;
+        --moss: #7fa054;
+        --moss-dark: #4a6535;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Loam texture: a faint radial gradient plus grain */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background:
+          radial-gradient(
+            1200px 800px at 80% 20%,
+            rgba(232, 161, 58, 0.06),
+            transparent 65%
+          ),
+          radial-gradient(
+            900px 700px at 15% 85%,
+            rgba(127, 160, 84, 0.06),
+            transparent 65%
+          );
+        pointer-events: none;
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.35;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      }
+
+      canvas#spores {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .sprout-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+      }
+      .sprout {
+        position: absolute;
+        opacity: 0;
+        transform: translateY(6px) scale(0.6);
+        transform-origin: bottom center;
+        animation: sprout 6s ease-in-out forwards;
+      }
+      @keyframes sprout {
+        0% { opacity: 0; transform: translateY(6px) scale(0.6); }
+        15% { opacity: 1; transform: translateY(0) scale(1); }
+        80% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-2px) scale(1); }
+      }
+
+      .frame {
+        position: relative;
+        z-index: 3;
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: clamp(14px, 2.2vh, 28px);
+        padding: clamp(18px, 3vh, 30px) clamp(28px, 5vw, 72px);
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+
+      /* Top bar */
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 24px;
+        padding-bottom: clamp(10px, 1.4vh, 16px);
+        border-bottom: 1px solid var(--line);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        letter-spacing: 0.08em;
+        color: var(--ink-mid);
+        text-transform: uppercase;
+      }
+      .topbar .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--ink);
+      }
+      .brand svg {
+        width: 20px;
+        height: 22px;
+      }
+
+      /* Hero */
+      .hero {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: clamp(24px, 4vw, 56px);
+        min-height: 0;
+      }
+
+      .hero-left {
+        display: grid;
+        grid-template-rows: auto auto auto 1fr;
+        gap: clamp(12px, 2vh, 20px);
+        min-height: 0;
+      }
+
+      .taxa {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--ink-dim);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .taxa .id {
+        color: var(--chanterelle);
+      }
+      .taxa .sep {
+        color: var(--line);
+      }
+
+      h1 {
+        font-family: "IBM Plex Serif", "Times New Roman", serif;
+        font-weight: 500;
+        font-size: clamp(40px, 5.4vw, 78px);
+        line-height: 1;
+        letter-spacing: -0.015em;
+        color: var(--ink);
+      }
+      h1 .latin {
+        display: block;
+        margin-top: 12px;
+        font-family: "IBM Plex Serif", serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(18px, 1.7vw, 22px);
+        color: var(--chanterelle);
+        letter-spacing: 0.02em;
+      }
+
+      .subtitle {
+        font-family: "IBM Plex Serif", serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(15px, 1.4vw, 19px);
+        line-height: 1.4;
+        color: var(--ink-mid);
+        max-width: 46ch;
+      }
+
+      /* Uptime block */
+      .uptime {
+        align-self: end;
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: clamp(16px, 2.4vh, 24px) clamp(18px, 2.2vw, 28px);
+        position: relative;
+      }
+      .uptime::before {
+        content: "system.uptime";
+        position: absolute;
+        top: -9px;
+        left: 20px;
+        background: var(--bg);
+        padding: 0 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.14em;
+        color: var(--ink-dim);
+        text-transform: uppercase;
+      }
+      .uptime-line {
+        display: flex;
+        align-items: baseline;
+        gap: 0.02em;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: clamp(46px, 7.6vw, 108px);
+        line-height: 0.95;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+      }
+      .uptime-line .colon {
+        color: var(--chanterelle);
+        margin: 0 0.08em;
+      }
+      .uptime-line .caret {
+        display: inline-block;
+        width: 0.12em;
+        height: 0.6em;
+        background: var(--chanterelle);
+        margin-left: 0.16em;
+        transform: translateY(-0.15em);
+        animation: caret 1s steps(2) infinite;
+      }
+      @keyframes caret { 50% { opacity: 0; } }
+      .uptime-legend {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--ink-dim);
+      }
+      .uptime-legend span {
+        border-top: 1px solid var(--line-soft);
+        padding-top: 6px;
+      }
+      .uptime-meta {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.12em;
+        color: var(--ink-dim);
+        text-transform: uppercase;
+      }
+      .uptime-meta .status {
+        color: var(--moss);
+      }
+      .uptime-meta .status .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: var(--moss);
+        border-radius: 999px;
+        box-shadow: 0 0 8px var(--moss);
+        margin-right: 6px;
+        animation: pulse 2.4s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      /* Right column: mushroom illustration + side stats */
+      .hero-right {
+        display: grid;
+        grid-template-rows: 1fr auto;
+        gap: clamp(14px, 2vh, 22px);
+        min-height: 0;
+      }
+      .plate {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background:
+          radial-gradient(
+            circle at 50% 60%,
+            rgba(127, 160, 84, 0.14),
+            transparent 65%
+          ),
+          var(--bg-2);
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        min-height: 0;
+      }
+      .plate::before {
+        content: "plate I · chanterelles";
+        position: absolute;
+        top: 10px;
+        left: 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        color: var(--ink-dim);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .plate svg.cluster {
+        width: 78%;
+        height: 78%;
+      }
+      .plate .caption {
+        position: absolute;
+        bottom: 10px;
+        right: 14px;
+        font-family: "IBM Plex Serif", serif;
+        font-style: italic;
+        font-size: 12.5px;
+        color: var(--ink-mid);
+      }
+
+      .side-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .sstat {
+        background: var(--bg-2);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 14px 16px;
+      }
+      .sstat .v {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: clamp(22px, 2.4vw, 30px);
+        line-height: 1;
+        color: var(--chanterelle);
+        font-variant-numeric: tabular-nums;
+      }
+      .sstat .k {
+        margin-top: 8px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.14em;
+        color: var(--ink-dim);
+        text-transform: uppercase;
+      }
+
+      /* Footer: field notes */
+      .footstrip {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: clamp(24px, 4vw, 48px);
+        padding-top: clamp(10px, 1.6vh, 18px);
+        border-top: 1px solid var(--line);
+      }
+      .foot-block h3 {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--chanterelle);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .foot-block h3::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--line);
+      }
+      .foot-block ul {
+        list-style: none;
+        display: grid;
+        gap: 6px;
+      }
+      .foot-block li {
+        display: grid;
+        grid-template-columns: 20px 1fr;
+        gap: 10px;
+        font-family: "IBM Plex Serif", serif;
+        font-size: clamp(14px, 1.25vw, 17px);
+        line-height: 1.45;
+        color: var(--ink);
+      }
+      .foot-block li::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        margin-top: 8px;
+        background: var(--chanterelle);
+        border-radius: 999px;
+        opacity: 0.7;
+      }
+      .foot-block .notes {
+        font-family: "IBM Plex Serif", serif;
+        font-size: clamp(14px, 1.25vw, 17px);
+        line-height: 1.5;
+        color: var(--ink);
+      }
+      .foot-block .notes em {
+        color: var(--chanterelle);
+        font-style: italic;
+      }
+      .foot-block .notes b {
+        font-weight: 500;
+        color: var(--ink);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="spores"></canvas>
+    <div class="sprout-layer" id="sproutLayer" aria-hidden="true"></div>
+
+    <div class="frame">
+      <div class="topbar">
+        <div class="brand">
+          <svg viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 15 Q4 6 16 6 Q28 6 28 15 Q28 20 22 20 Q18 18 16 22 Q14 18 10 20 Q4 20 4 15 Z" fill="#e8a13a" stroke="#b47725" stroke-width="0.8"/>
+            <path d="M13 20 Q12 30 14 34 L18 34 Q20 30 19 20 Z" fill="#c58a30" stroke="#8a5c1e" stroke-width="0.8"/>
+          </svg>
+          <span>Minut · Backend · Malmö</span>
+        </div>
+        <div id="today">—</div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-left">
+          <div class="taxa">
+            <span>specimen no.</span>
+            <span class="id">K.BERG · 001</span>
+            <span class="sep">·</span>
+            <span>onset 2022-01-10</span>
+          </div>
+
+          <div>
+            <h1>
+              Kristian Berg,
+              <span class="latin">cantharellus cibarius berg.</span>
+            </h1>
+          </div>
+
+          <p class="subtitle">
+            Backend engineer at Minut. Cuts the releases, tags them, tidies
+            Rollbar behind them. Lives in be-core, occasionally in the web
+            client, and — since 10 July — in a Malmö shop that serves
+            pickled chanterelle hors d'oeuvres.
+          </p>
+
+          <div class="uptime" role="timer" aria-live="polite">
+            <div class="uptime-line">
+              <span id="uDays">0000</span><span class="colon">:</span><span id="uHours">00</span><span class="colon">:</span><span id="uMins">00</span><span class="colon">:</span><span id="uSecs">00</span><span class="caret" aria-hidden="true"></span>
+            </div>
+            <div class="uptime-legend">
+              <span>days</span><span>hours</span><span>minutes</span><span>seconds</span>
+            </div>
+            <div class="uptime-meta">
+              <span>since 2022-01-10 · malmö · UTC+02:00</span>
+              <span class="status"><span class="dot"></span>50% · running</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="plate">
+            <svg class="cluster" viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <!-- Ground shadow -->
+              <ellipse cx="130" cy="182" rx="105" ry="8" fill="rgba(0,0,0,0.35)"/>
+
+              <!-- Mushroom 1 (large, center-back) -->
+              <g transform="translate(105,60)">
+                <!-- stem -->
+                <path d="M22,66 Q18,108 24,124 L46,124 Q52,108 48,66 Z" fill="#c58a30" stroke="#7d5418" stroke-width="1.2"/>
+                <path d="M28,72 L28,120 M42,72 L42,120" stroke="#8a5c1e" stroke-width="0.6" opacity="0.5"/>
+                <!-- cap: wavy funnel -->
+                <path d="M0,44 Q4,18 20,20 Q28,4 40,10 Q52,-2 62,12 Q76,6 82,26 Q94,20 96,44 Q96,58 88,62 Q80,52 68,64 Q60,52 52,66 Q44,50 38,66 Q30,50 22,64 Q14,52 8,60 Q0,56 0,44 Z" fill="#e8a13a" stroke="#a06a1e" stroke-width="1.2"/>
+                <path d="M12,42 Q22,36 30,40 M40,38 Q50,32 60,38 M68,38 Q78,36 84,42" stroke="#b47725" stroke-width="0.9" fill="none" opacity="0.55"/>
+              </g>
+
+              <!-- Mushroom 2 (small, left-front) -->
+              <g transform="translate(24,110)">
+                <path d="M14,44 Q11,66 15,76 L27,76 Q31,66 28,44 Z" fill="#c58a30" stroke="#7d5418" stroke-width="1"/>
+                <path d="M0,26 Q2,10 12,12 Q18,2 24,8 Q32,2 38,14 Q46,12 48,26 Q48,36 42,38 Q36,30 30,40 Q24,30 18,40 Q12,30 6,38 Q0,34 0,26 Z" fill="#e8a13a" stroke="#a06a1e" stroke-width="1"/>
+                <path d="M8,26 Q16,22 22,24 M28,24 Q36,22 42,26" stroke="#b47725" stroke-width="0.7" fill="none" opacity="0.55"/>
+              </g>
+
+              <!-- Mushroom 3 (medium, right-front) -->
+              <g transform="translate(178,90)">
+                <path d="M18,58 Q14,90 20,102 L38,102 Q44,90 40,58 Z" fill="#c58a30" stroke="#7d5418" stroke-width="1.1"/>
+                <path d="M0,36 Q3,14 16,14 Q22,2 32,6 Q42,-2 50,10 Q60,8 62,34 Q62,46 54,48 Q48,38 42,50 Q34,38 28,50 Q22,38 14,48 Q6,44 0,36 Z" fill="#e8a13a" stroke="#a06a1e" stroke-width="1.1"/>
+                <path d="M8,32 Q18,28 24,30 M32,30 Q42,26 50,30" stroke="#b47725" stroke-width="0.8" fill="none" opacity="0.55"/>
+              </g>
+
+              <!-- Grass tufts -->
+              <path d="M8,182 Q10,172 12,182 M16,182 Q18,170 20,182 M240,180 Q242,168 244,180 M232,182 Q234,174 236,182" stroke="#7fa054" stroke-width="1.4" fill="none" opacity="0.7"/>
+            </svg>
+            <span class="caption">field notebook · plate I</span>
+          </div>
+
+          <div class="side-stats">
+            <div class="sstat">
+              <div class="v" id="halfTime">—</div>
+              <div class="k">days at 50% · since 1 jun</div>
+            </div>
+            <div class="sstat">
+              <div class="v" id="shopDays">—</div>
+              <div class="k">days shop open · since 10 jul</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footstrip">
+        <div class="foot-block">
+          <h3>what he keeps upright</h3>
+          <ul>
+            <li>be-core · the backend. Full-stack when the frontend blocks him.</li>
+            <li>Release trains: cut PR, tag, deploy, verify, post the summary.</li>
+            <li>Rollbar reconciliation. The housekeeping most people skip.</li>
+            <li>Second-line rotation (half-covered, per his own note).</li>
+            <li>Test infra: fixtures, fake-services, why-your-tests-fail.</li>
+          </ul>
+        </div>
+        <div class="foot-block">
+          <h3>field notes</h3>
+          <p class="notes">
+            <b>Since 1 Jun 2026:</b> Mon, Tue, half-Wed. <em>The only engineer on GXP, at 50%.</em>
+            Grand opening in Malmö on <b>10 Jul 2026</b>, chanterelles pickled at home.
+            AI-critical but AI-fluent: had Claude find the missing MongoDB indices on
+            <code>guestMessages</code> — prod had only <code>_id</code> and <code>guestId</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const START = new Date(2022, 0, 10, 9, 0, 0); // 10 Jan 2022 · 09:00 local
+      const HALF_TIME = new Date(2026, 5, 1); // 1 Jun 2026
+      const SHOP = new Date(2026, 6, 10); // 10 Jul 2026
+
+      const uDays = document.getElementById("uDays");
+      const uHours = document.getElementById("uHours");
+      const uMins = document.getElementById("uMins");
+      const uSecs = document.getElementById("uSecs");
+      const halfTimeEl = document.getElementById("halfTime");
+      const shopDaysEl = document.getElementById("shopDays");
+      const todayEl = document.getElementById("today");
+
+      const pad = (n, len) => String(n).padStart(len, "0");
+
+      function tick() {
+        const now = new Date();
+        const secs = Math.max(0, Math.floor((now - START) / 1000));
+        const d = Math.floor(secs / 86400);
+        const h = Math.floor((secs % 86400) / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = secs % 60;
+        uDays.textContent = pad(d, 4);
+        uHours.textContent = pad(h, 2);
+        uMins.textContent = pad(m, 2);
+        uSecs.textContent = pad(s, 2);
+      }
+      tick();
+      setInterval(tick, 1000);
+
+      const dayDelta = (from, to) =>
+        Math.max(0, Math.floor((to - from) / 86400000));
+
+      const now = new Date();
+      halfTimeEl.textContent = pad(dayDelta(HALF_TIME, now), 3);
+      shopDaysEl.textContent = pad(dayDelta(SHOP, now), 3);
+
+      todayEl.textContent = now
+        .toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+        .toUpperCase();
+
+      // ---------------------------------------------------------------
+      // Spore field — soft particles drifting upward
+      // ---------------------------------------------------------------
+      const sp = document.getElementById("spores");
+      const spCtx = sp.getContext("2d");
+      let SW, SH, SDPR;
+      function spResize() {
+        SDPR = Math.min(2, window.devicePixelRatio || 1);
+        SW = sp.width = window.innerWidth * SDPR;
+        SH = sp.height = window.innerHeight * SDPR;
+        sp.style.width = window.innerWidth + "px";
+        sp.style.height = window.innerHeight + "px";
+      }
+      spResize();
+      window.addEventListener("resize", spResize);
+
+      const N = 60;
+      const spores = Array.from({ length: N }, () => ({
+        x: Math.random() * SW,
+        y: Math.random() * SH,
+        r: (Math.random() * 1.3 + 0.4) * SDPR,
+        vx: (Math.random() - 0.5) * 0.15 * SDPR,
+        vy: -(Math.random() * 0.35 + 0.08) * SDPR,
+        a: Math.random() * 0.5 + 0.15,
+        hue:
+          Math.random() < 0.35
+            ? "232, 161, 58"
+            : Math.random() < 0.5
+            ? "127, 160, 84"
+            : "230, 221, 196",
+        wob: Math.random() * Math.PI * 2,
+      }));
+
+      function spDraw() {
+        spCtx.clearRect(0, 0, SW, SH);
+        for (const p of spores) {
+          p.wob += 0.02;
+          p.x += p.vx + Math.sin(p.wob) * 0.15 * SDPR;
+          p.y += p.vy;
+          if (p.y < -10) {
+            p.y = SH + 10;
+            p.x = Math.random() * SW;
+          }
+          spCtx.fillStyle = `rgba(${p.hue}, ${p.a})`;
+          spCtx.beginPath();
+          spCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          spCtx.fill();
+        }
+        requestAnimationFrame(spDraw);
+      }
+      spDraw();
+
+      // ---------------------------------------------------------------
+      // Occasional tiny chanterelle sprouts on the page edges
+      // ---------------------------------------------------------------
+      const sproutLayer = document.getElementById("sproutLayer");
+      const MUSHROOM_SVG = `
+        <svg width="34" height="42" viewBox="0 0 34 42" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14,22 Q12,34 14,40 L20,40 Q22,34 20,22 Z" fill="#c58a30" stroke="#7d5418" stroke-width="0.8"/>
+          <path d="M0,14 Q2,4 10,4 Q14,-1 18,3 Q22,-1 26,4 Q34,6 34,14 Q34,20 28,22 Q22,16 18,24 Q14,16 8,22 Q0,20 0,14 Z" fill="#e8a13a" stroke="#a06a1e" stroke-width="0.9"/>
+        </svg>`;
+
+      function spawnSprout() {
+        const el = document.createElement("div");
+        el.className = "sprout";
+        el.innerHTML = MUSHROOM_SVG;
+        // Bias toward the bottom half of the page.
+        el.style.left = (5 + Math.random() * 88) + "vw";
+        el.style.top = (35 + Math.random() * 60) + "vh";
+        el.style.transform +=
+          " rotate(" + (Math.random() * 20 - 10).toFixed(1) + "deg)";
+        sproutLayer.appendChild(el);
+        setTimeout(() => el.remove(), 6200);
+      }
+      // First sprout after a beat, then irregularly.
+      setTimeout(spawnSprout, 2400);
+      setInterval(() => {
+        if (Math.random() < 0.7) spawnSprout();
+      }, 4500);
+    </script>
+  </body>
+</html>
